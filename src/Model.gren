@@ -15,5 +15,5 @@ initialModel : Navigation.Key -> Flags -> Model
 initialModel navigationKey flags =
     { navigationKey = navigationKey
     , flags = flags
-    , page = ImportsPage
+    , page = IntroPage
     }

@@ -1,0 +1,23 @@
+module Views.IntroPage exposing (view)
+
+import Html exposing (Html, h1, h2, div, p, text, pre)
+import Html.Attributes exposing (class, id)
+import Html.Events exposing (onClick)
+import String
+
+import CodeView
+import Msg exposing (Msg(..))
+import Model exposing (..)
+
+
+view : Model -> Html Msg
+view model =
+    div [] [
+        h1 [] [ text "Introduction" ],
+
+        p [] [ text """
+This document discusses the design choices for "gren format".
+"""
+        ]
+
+    ]

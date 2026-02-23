@@ -34,10 +34,10 @@ update msg model =
             in
                 setNewPage maybeNewRoute model
 
-        ClickedImportsEntry ->
+        ClickedTocEntry page ->
             { model =
                 { model
-                    | page = ImportsPage
+                    | page = page
                 }
             , command = Cmd.none
             }

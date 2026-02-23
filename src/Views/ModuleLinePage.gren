@@ -1,0 +1,39 @@
+module Views.ModuleLinePage exposing (view)
+
+import Html exposing (Html, h1, h2, div, p, text, pre)
+import Html.Attributes exposing (class, id)
+import Html.Events exposing (onClick)
+import String
+
+import CodeView
+import Msg exposing (Msg(..))
+import Model exposing (..)
+
+sample : String
+sample = """
+viewItems : Array String -> String
+viewItems items =
+    items
+        |> Array.sort
+        |> String.join ", "
+"""
+
+view : Model -> Html Msg
+view model =
+    div [] [
+        h1 [] [ text "Imports" ],
+
+        p [] [
+            text "This is a sentence."
+        ],
+        pre [] [ 
+            text "this is one line with\na second line",
+            text "\n",
+            text "this is a new text attribute"
+        ],
+
+        CodeView.view sample [10, 20, 40, 80] "Example 1"
+
+
+
+    ]

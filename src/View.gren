@@ -8,12 +8,16 @@ import String
 
 import Model exposing (..)
 import Msg exposing (Msg(..))
-import Pages exposing (Page(..))
+import Pages exposing (Page(..), allPages, pageTitle)
+import Views.IntroPage
 import Views.ImportsPage
+import Views.ModuleLinePage
+
+doc_title = "The Design of \"gren format\""
 
 view : Model -> Document Msg
 view model =
-    { title = "\"gren format\" Design"
+    { title = doc_title
     , body = [
         div [ class "page-layout" ] [
             render_header model,
@@ -26,7 +30,7 @@ render_header : Model -> Html Msg
 render_header model =
     header [ class "top-header" ] [
         h1 [ class "site-title" ] [
-            text "\"gren format\" Design"
+            text doc_title
         ]
     ]
 
@@ -44,18 +48,30 @@ render_toc model =
     in
     nav [ class "toc-sidebar" ] [
         h2 [ class "toc-title" ] [ text "Contents" ],
-        ul [ class "toc-list" ] [
-            li [ class "toc-item", class "toc-link", onClick ClickedImportsEntry, class importClass ] [
-                text "Imports"
-            ]
-        ]
+        ul [ class "toc-list" ]
+            (render_toc_entries model)
     ]
+
+render_toc_entries: Model -> Array (Html Msg)
+render_toc_entries model =
+    Array.map
+        (\page ->
+            let
+                activeClass = if model.page == page then "active" else ""
+            in
+            li [ class "toc-item", class "toc-link",
+                    onClick (ClickedTocEntry page), class activeClass ] [
+                text (pageTitle page)
+            ]
+        ) allPages
 
 render_page_view : Model -> Html Msg
 render_page_view model =
     let
         pageBody =
             when model.page is
+                IntroPage -> Views.IntroPage.view model
+                ModuleLinePage -> Views.ModuleLinePage.view model
                 ImportsPage -> Views.ImportsPage.view model
     in
     nav [ class "main-content" ] [

@@ -1,4 +1,20 @@
-module Pages exposing (Page(..))
+module Pages exposing (Page(..), allPages, pageTitle)
 
-type Page =
-    ImportsPage
+type Page
+    = IntroPage
+    | ModuleLinePage
+    | ImportsPage
+
+
+-- The order matters; it's how the table-of-contents sidebard
+-- is rendered
+allPages : Array Page
+allPages =
+    [ IntroPage, ModuleLinePage, ImportsPage ]
+
+pageTitle : Page -> String
+pageTitle page =
+    when page is
+        IntroPage -> "Introduction"
+        ModuleLinePage -> "Module Line"
+        ImportsPage -> "Imports"
