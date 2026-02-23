@@ -50,17 +50,20 @@ fontSizePx = 16
 view : String -> Array Int -> String -> Html msg
 view codeContent guideColumns figureCaption =
     let
-        -- 1. Calculations
+        -- 1. Setup dimensions
         lines = String.split "\n" codeContent
         numLines = Array.length lines
         
         internalMargin = 20.0
         captionSpace = 40.0
         
-        -- Calculate dimensions
-        contentHeight = (toFloat numLines * lineHeight)
-        totalHeight = contentHeight + paddingTop + captionSpace + (internalMargin * 2)
+        -- The frame should only contain the guides and the code
+        frameHeight = (toFloat numLines * lineHeight) + paddingTop + (internalMargin * 2)
         
+        -- The total SVG height includes the caption area below the frame
+        totalHeight = frameHeight + captionSpace
+        
+        -- Width calculation remains the same
         maxCodeChars = Array.foldl (\line acc -> Basics.max (String.count line) acc) 0 lines
         maxGuideCol = Array.foldl Basics.max 0 guideColumns
         totalWidth = (Basics.max (toFloat maxCodeChars) (toFloat maxGuideCol) * charWidth) + (internalMargin * 2)
@@ -70,12 +73,12 @@ view codeContent guideColumns figureCaption =
         , height (String.fromFloat totalHeight)
         , viewBox ("0 0 " ++ String.fromFloat totalWidth ++ " " ++ String.fromFloat totalHeight)
         ]
-        [ -- 2. The Frame (Background)
+        [ -- 2. The Frame
           rect
             [ x "0"
             , y "0"
             , width (String.fromFloat totalWidth)
-            , height (String.fromFloat (totalHeight - captionSpace)) -- Frame ends before caption
+            , height (String.fromFloat frameHeight) -- Fixed to frameHeight
             , fill "#ffffff"
             , stroke "#dcdcdc"
             , strokeWidth "1"
@@ -83,10 +86,10 @@ view codeContent guideColumns figureCaption =
             ]
             []
             
-        -- 3. The Guides (Shifted by margin)
+        -- 3. The Guides (Now passing frameHeight to truncate the lines)
         , g [ transform ("translate(" ++ String.fromFloat internalMargin ++ ", 0)") ]
-            (Array.map renderGuide guideColumns)
-        
+            (Array.map (renderGuide frameHeight) guideColumns)
+
         -- 4. The Code Text (Shifted by margin and paddingTop)
         , g [ transform ("translate(" ++ String.fromFloat internalMargin ++ ", " ++ String.fromFloat (paddingTop + internalMargin) ++ ")") ]
             (Array.indexedMap renderLine lines)
@@ -101,35 +104,27 @@ view codeContent guideColumns figureCaption =
             , fontStyle "italic"
             , fill "#555"
             ]
-            [ text figureCaption ]
+            [ text figureCaption ]        
         ]
 
-renderGuide : Int -> Svg msg
-renderGuide col =
+-- Updated renderGuide to accept the height limit
+renderGuide : Float -> Int -> Svg msg
+renderGuide limitHeight col =
     let
         xPos = String.fromFloat (toFloat col * charWidth)
     in
     g []
-        [ -- The Vertical Line
-          line
+        [ line
             [ x1 xPos
-            , y1 (String.fromFloat (paddingTop - 15))
+            , y1 "30" -- Start just below the column number
             , x2 xPos
-            , y2 "100%"
+            , y2 (String.fromFloat limitHeight) -- STOP exactly at the frame edge
             , stroke "#d1d1d1"
             , strokeWidth "1"
-            , strokeDasharray "4,4" -- Makes the line dashed for a scholarly look
+            , strokeDasharray "4,4"
             ]
             []
-        -- The Column Number Label
-        , text_
-            [ x xPos
-            , y "20"
-            , textAnchor "middle"
-            , fill "#888"
-            , fontSize "12"
-            , fontFamily "sans-serif"
-            ]
+        , text_ [ x xPos, y "20", textAnchor "middle", fill "#888", fontSize "12" ]
             [ text (String.fromInt col) ]
         ]
 
