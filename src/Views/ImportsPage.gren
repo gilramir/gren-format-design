@@ -32,7 +32,7 @@ view model =
             text "this is a new text attribute"
         ],
 
-        CodeView.view sample [10, 20, 40, 80]
+        CodeView.view sample [10, 20, 40, 80] "Example 1"
 
 
 

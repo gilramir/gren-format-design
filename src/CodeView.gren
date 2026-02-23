@@ -47,30 +47,61 @@ fontSizePx = 16
 
 {-| Renders the code with vertical column guides.
 -}
-view : String -> Array Int -> Html msg
-view codeContent guideColumns =
+view : String -> Array Int -> String -> Html msg
+view codeContent guideColumns figureCaption =
     let
+        -- 1. Calculations
         lines = String.split "\n" codeContent
         numLines = Array.length lines
-        totalHeight = (toFloat numLines * lineHeight) + paddingTop
-        -- Find the furthest point to ensure the SVG canvas is wide enough
-        maxCodeWidth = (toFloat (Array.foldl (\line acc -> Basics.max (String.count line) acc) 0 lines)) * charWidth
-        maxGuideWidth = (Array.foldl Basics.max 0 guideColumns |> toFloat) * charWidth
-        totalWidth = Basics.max maxCodeWidth maxGuideWidth + 50
+        
+        internalMargin = 20.0
+        captionSpace = 40.0
+        
+        -- Calculate dimensions
+        contentHeight = (toFloat numLines * lineHeight)
+        totalHeight = contentHeight + paddingTop + captionSpace + (internalMargin * 2)
+        
+        maxCodeChars = Array.foldl (\line acc -> Basics.max (String.count line) acc) 0 lines
+        maxGuideCol = Array.foldl Basics.max 0 guideColumns
+        totalWidth = (Basics.max (toFloat maxCodeChars) (toFloat maxGuideCol) * charWidth) + (internalMargin * 2)
     in
     svg
         [ width (String.fromFloat totalWidth)
         , height (String.fromFloat totalHeight)
         , viewBox ("0 0 " ++ String.fromFloat totalWidth ++ " " ++ String.fromFloat totalHeight)
         ]
-        [
-
-        -- 1. Draw the Column Guides
-          g [] (Array.map renderGuide guideColumns)
+        [ -- 2. The Frame (Background)
+          rect
+            [ x "0"
+            , y "0"
+            , width (String.fromFloat totalWidth)
+            , height (String.fromFloat (totalHeight - captionSpace)) -- Frame ends before caption
+            , fill "#ffffff"
+            , stroke "#dcdcdc"
+            , strokeWidth "1"
+            , rx "2"
+            ]
+            []
+            
+        -- 3. The Guides (Shifted by margin)
+        , g [ transform ("translate(" ++ String.fromFloat internalMargin ++ ", 0)") ]
+            (Array.map renderGuide guideColumns)
         
-        -- 2. Draw the Code Text
-        , g [ transform ("translate(0, " ++ String.fromFloat paddingTop ++ ")") ]
+        -- 4. The Code Text (Shifted by margin and paddingTop)
+        , g [ transform ("translate(" ++ String.fromFloat internalMargin ++ ", " ++ String.fromFloat (paddingTop + internalMargin) ++ ")") ]
             (Array.indexedMap renderLine lines)
+            
+        -- 5. The Figure Caption
+        , text_
+            [ x (String.fromFloat (totalWidth / 2))
+            , y (String.fromFloat (totalHeight - 15))
+            , textAnchor "middle"
+            , fontFamily "var(--font-serif)" -- Using your scholarly serif font
+            , fontSize "14"
+            , fontStyle "italic"
+            , fill "#555"
+            ]
+            [ text figureCaption ]
         ]
 
 renderGuide : Int -> Svg msg
