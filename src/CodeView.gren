@@ -1,6 +1,7 @@
 module CodeView exposing (view)
 
 import Basics
+import Math
 
 import Html exposing (Html)
 import Html.Attributes exposing (attribute)
@@ -73,7 +74,7 @@ view codeContent guideColumns figureCaption =
         , height (String.fromFloat totalHeight)
         , viewBox ("0 0 " ++ String.fromFloat totalWidth ++ " " ++ String.fromFloat totalHeight)
         ]
-        [ -- 2. The Frame
+        [ -- 1. The Frame
           rect
             [ x "0"
             , y "0"
@@ -85,6 +86,10 @@ view codeContent guideColumns figureCaption =
             , rx "2"
             ]
             []
+
+        -- 2. Zebra Stripes
+        , g [ transform ("translate(0, " ++ String.fromFloat (paddingTop + internalMargin) ++ ")") ]
+            (Array.indexedMap renderStripe lines)
             
         -- 3. The Guides (Now passing frameHeight to truncate the lines)
         , g [ transform ("translate(" ++ String.fromFloat internalMargin ++ ", 0)") ]
@@ -140,3 +145,21 @@ renderLine index lineText =
         , attribute "xml:space" "preserve" 
         ]
         [ text lineText ]
+
+
+
+{-| Renders a subtle background rectangle for even-numbered lines.
+-}
+renderStripe : Int -> String -> Svg msg
+renderStripe index _ =
+    if Math.modBy 2 index == 1 then
+        rect
+            [ x "1" -- Offset slightly to not overlap the frame's left border
+            , y (String.fromFloat (toFloat index * lineHeight))
+            , width "99%" -- Fills the width of the frame
+            , height (String.fromFloat lineHeight)
+            , fill "#f9f9f7" -- A very subtle paper-gray
+            ]
+            []
+    else
+        text "" -- Don't draw anything for odd lines
