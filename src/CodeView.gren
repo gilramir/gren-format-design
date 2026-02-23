@@ -1,0 +1,116 @@
+module CodeView exposing (view)
+
+import Basics
+
+import Html exposing (Html)
+import Html.Attributes exposing (attribute)
+import Svg exposing (..)
+import Svg.Attributes exposing (..)
+
+{-
+(from Gemini LLM)
+
+Key Technical Details:
+
+xml:space="preserve": This is a critical SVG attribute. Without it,
+the browser will collapse multiple spaces into a single space, breaking
+your monospaced alignment.
+
+Coordinate Math: The text is shifted down by paddingTop to make room
+for the column labels (80, 100, etc.).
+
+Dynamic Sizing: The function calculates the necessary viewBox width by
+checking both the longest line of code and the highest column marker.
+
+Visual Style: I used strokeDasharray for the lines. In scholarly
+or technical drafting, dashed lines represent "guides" rather than
+"boundaries," which feels more appropriate for code column limits.
+-}
+
+type alias Model =
+    { code : String
+    , guides : Array Int
+    }
+
+-- CONFIGURATION CONSTANTS
+charWidth : Float
+charWidth = 9.6
+
+lineHeight : Float
+lineHeight = 20.0
+
+paddingTop : Float
+paddingTop = 40.0 -- Extra space for the column numbers
+
+fontSizePx : Int
+fontSizePx = 16
+
+{-| Renders the code with vertical column guides.
+-}
+view : String -> Array Int -> Html msg
+view codeContent guideColumns =
+    let
+        lines = String.split "\n" codeContent
+        numLines = Array.length lines
+        totalHeight = (toFloat numLines * lineHeight) + paddingTop
+        -- Find the furthest point to ensure the SVG canvas is wide enough
+        maxCodeWidth = (toFloat (Array.foldl (\line acc -> Basics.max (String.count line) acc) 0 lines)) * charWidth
+        maxGuideWidth = (Array.foldl Basics.max 0 guideColumns |> toFloat) * charWidth
+        totalWidth = Basics.max maxCodeWidth maxGuideWidth + 50
+    in
+    svg
+        [ width (String.fromFloat totalWidth)
+        , height (String.fromFloat totalHeight)
+        , viewBox ("0 0 " ++ String.fromFloat totalWidth ++ " " ++ String.fromFloat totalHeight)
+        ]
+        [
+
+        -- 1. Draw the Column Guides
+          g [] (Array.map renderGuide guideColumns)
+        
+        -- 2. Draw the Code Text
+        , g [ transform ("translate(0, " ++ String.fromFloat paddingTop ++ ")") ]
+            (Array.indexedMap renderLine lines)
+        ]
+
+renderGuide : Int -> Svg msg
+renderGuide col =
+    let
+        xPos = String.fromFloat (toFloat col * charWidth)
+    in
+    g []
+        [ -- The Vertical Line
+          line
+            [ x1 xPos
+            , y1 (String.fromFloat (paddingTop - 15))
+            , x2 xPos
+            , y2 "100%"
+            , stroke "#d1d1d1"
+            , strokeWidth "1"
+            , strokeDasharray "4,4" -- Makes the line dashed for a scholarly look
+            ]
+            []
+        -- The Column Number Label
+        , text_
+            [ x xPos
+            , y "20"
+            , textAnchor "middle"
+            , fill "#888"
+            , fontSize "12"
+            , fontFamily "sans-serif"
+            ]
+            [ text (String.fromInt col) ]
+        ]
+
+renderLine : Int -> String -> Svg msg
+renderLine index lineText =
+    text_
+        [ x "0"
+        , y (String.fromFloat (toFloat index * lineHeight + 15))
+        , fontFamily "monospace"
+        , fontSize (String.fromInt fontSizePx)
+        , fill "#222"
+        -- This ensures the browser preserves spaces
+        , attribute "xml:space" "preserve" 
+        ]
+        [ text lineText ]

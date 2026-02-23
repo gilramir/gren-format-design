@@ -180,3 +180,9 @@ pre {
   line-height: 1.4;
 }
 
+/* Ensure that the CodeView font width calculatio matches
+ * our 9.6px calcution exctly */
+svg text {
+  font-family: 'Courier New', Courier, monospace;
+  white-space: pre;
+}
