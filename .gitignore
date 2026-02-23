@@ -1,0 +1,4 @@
+*.swp
+.gren/
+gren_packages/
+static/js/main.js

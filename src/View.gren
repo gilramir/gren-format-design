@@ -1,0 +1,66 @@
+module View exposing (view)
+
+import Browser exposing (Document)
+import Html exposing (Html, h1, h2, div, nav, article, ul, li, text, header)
+import Html.Attributes exposing (class, id)
+import Html.Events exposing (onClick)
+import String
+
+import Model exposing (..)
+import Msg exposing (Msg(..))
+import Pages exposing (Page(..))
+import Views.ImportsPage
+
+view : Model -> Document Msg
+view model =
+    { title = "\"gren format\" Design"
+    , body = [
+        div [ class "page-layout" ] [
+            render_header model,
+            render_body model
+        ]
+    ]
+    }
+
+render_header : Model -> Html Msg
+render_header model =
+    header [ class "top-header" ] [
+        h1 [ class "site-title" ] [
+            text "\"gren format\" Design"
+        ]
+    ]
+
+render_body : Model -> Html Msg
+render_body model =
+    div [ class "app-container" ] [
+        render_toc model,
+        render_page_view model
+    ]
+
+render_toc : Model -> Html Msg
+render_toc model =
+    let
+        importClass = if model.page == ImportsPage then "active" else ""
+    in
+    nav [ class "toc-sidebar" ] [
+        h2 [ class "toc-title" ] [ text "Contents" ],
+        ul [ class "toc-list" ] [
+            li [ class "toc-item", class "toc-link", onClick ClickedImportsEntry, class importClass ] [
+                text "Imports"
+            ]
+        ]
+    ]
+
+render_page_view : Model -> Html Msg
+render_page_view model =
+    let
+        pageBody =
+            when model.page is
+                ImportsPage -> Views.ImportsPage.view model
+    in
+    nav [ class "main-content" ] [
+        article [ id "content-area" ] [
+            pageBody
+        ]
+    ]
+

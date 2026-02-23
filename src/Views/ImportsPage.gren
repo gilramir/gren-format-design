@@ -1,0 +1,15 @@
+module Views.ImportsPage exposing (view)
+
+import Html exposing (Html, h1, h2, div, nav, article, ul, li, text)
+import Html.Attributes exposing (class, id)
+import Html.Events exposing (onClick)
+import String
+
+import Msg exposing (Msg(..))
+import Model exposing (..)
+
+view : Model -> Html Msg
+view model =
+    div [] [
+        text "To be written"
+    ]

@@ -1,0 +1,46 @@
+module Routes exposing (Route(..), match, href, routeToUrl, prependSlashIfNotEmpty)
+
+import Html
+import Html.Attributes
+
+import Url exposing (Url)
+import Url.Parser as Parser exposing ((</>), Parser)
+
+type Route
+    = HomeRoute
+
+-- Parser for routes
+routes: String -> Parser (Route -> a) a
+routes mountPath =
+    let
+        homeRoute = if mountPath == "" then Parser.top else (Parser.s mountPath)
+    in
+        Parser.oneOf
+            [ Parser.map HomeRoute homeRoute
+            ]
+
+-- Converts URLs to routes
+match: String -> Url -> Maybe Route
+match basePath url =
+    Parser.parse (routes basePath) url
+
+routeToUrl: String -> Route -> String
+routeToUrl mountPath route =
+    when route is
+        HomeRoute ->
+            "/" ++ mountPath
+
+-- Helper routine to make an href Html Atribute
+href : String -> Route -> Html.Attribute msg
+href mountPath route =
+    Html.Attributes.href (routeToUrl mountPath route)
+
+
+-- Needed when making URLs using the mountPoint and concatenating
+-- a path after it. E.g.:
+--      mountPath + "/static"
+-- If mountPath is "", then we want to keep it that way,
+-- but if mountPath is "staging", we want to convert that to "/staging"
+prependSlashIfNotEmpty: String -> String
+prependSlashIfNotEmpty text =
+    if text == "" then text else ("/" ++ text)

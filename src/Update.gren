@@ -1,0 +1,43 @@
+module Update exposing (update)
+
+import Browser exposing (UrlRequest)
+import Browser.Navigation as Navigation
+import Url exposing (Url)
+
+import Model exposing (..)
+import Msg exposing (Msg(..))
+import Pages exposing (Page(..))
+import RouteHandler exposing (setNewPage)
+import Routes exposing (Route(..), routeToUrl, prependSlashIfNotEmpty)
+
+update : Msg -> Model -> { model: Model, command: Cmd Msg}
+update msg model =
+    when msg is
+
+        -- User clicked on a link
+        VisitUrl (Browser.Internal url) ->
+            { model = model
+            , command = Navigation.pushUrl model.navigationKey (Url.toString url)
+            }
+
+        -- User clicked on a bad link
+        VisitUrl _ ->
+            -- XXX Go to a Not Found page?
+            { model =model
+            , command = Cmd.none
+            }
+
+        -- Externally or internally, the URL changed in the address bar
+        UrlChanged newUrl ->
+            let
+                maybeNewRoute = Routes.match model.flags.mountPoint newUrl
+            in
+                setNewPage maybeNewRoute model
+
+        ClickedImportsEntry ->
+            { model =
+                { model
+                    | page = ImportsPage
+                }
+            , command = Cmd.none
+            }

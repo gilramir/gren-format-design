@@ -1,0 +1,24 @@
+module RouteHandler exposing (setNewPage)
+
+import Model exposing (Model)
+import Msg exposing (Msg)
+import Routes exposing (Route(..))
+
+-- Update the model based on the route
+setNewPage : Maybe Route -> Model -> { model: Model, command: Cmd Msg }
+setNewPage maybeRoute model =
+    when maybeRoute is
+        Just HomeRoute ->
+            --{ model = model, command = requestFocus "search-term"}
+            { model = model, command = Cmd.none }
+
+        Nothing ->
+            -- XXX does this ever run?
+            { model = model
+                {-
+                { model
+                    | error = "No such page"
+                 }
+                 -}
+            , command = Cmd.none
+            }

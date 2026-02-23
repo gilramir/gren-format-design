@@ -1,0 +1,15 @@
+module Flags exposing ( Flags )
+
+-- Flags from the browser
+
+-- mountPoint is my own special creation.
+-- Beware: it has *no* beginning or trailing slash
+-- Root is en empty string
+--
+-- Dev: http://localhost:8000/ => mountPoint = ""
+-- Staging: http://hangil.app/staging" => mountPoint = "staging"
+type alias Flags =
+    { urlProtoHostPort : String
+    , mountPoint: String
+    }
+

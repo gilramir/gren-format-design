@@ -1,0 +1,182 @@
+/* --- 1. Variables & Global Setup --- */
+:root {
+  /* Colors */
+  --bg-paper: #fbfbfa;       /* Soft off-white, like textbook paper */
+  --sidebar-bg: #f2f2ef;     /* Slightly darker for contrast */
+  --text-main: #222222;      /* Off-black to reduce eye strain */
+  --text-muted: #555555;
+  --accent-color: #c47a7a;   /* light dusty rose/brick */
+  --code-bg: #e8e8e6;
+
+  /* Typography */
+  --font-serif: "Palatino Linotype", "Book Antiqua", Palatino, Georgia, serif;
+  --font-mono: "Consolas", "Fira Code", "Courier New", monospace;
+  --font-sans: "Helvetica Neue", Arial, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: var(--font-serif);
+  color: var(--text-main);
+  background-color: var(--bg-paper);
+  line-height: 1.6;
+  overflow: hidden; /* Prevents the whole page from scrolling */
+}
+
+/* --- Layout Structure --- */
+.page-layout {
+  display: flex;
+  flex-direction: column; /* Stacks the header and the app-container vertically */
+  height: 100vh;          /* Locks to the viewport height */
+}
+
+/* --- Top Header Styles --- */
+.top-header {
+  flex-shrink: 0;         /* Prevents the header from collapsing */
+  background-color: var(--accent-color);
+  color: var(--text-main); /* Dark text to constrast agains the lighter background */
+  padding: 1rem 2rem;
+  border-bottom: 4px solid #a86666; /* A slightly different shade for depth */
+}
+
+/* Distinct styling for the site title so it doesn't conflict with article H1s */
+.site-title {
+  margin: 0;
+  font-size: 1.75rem;
+  font-family: var(--font-serif);
+  font-weight: normal;
+  letter-spacing: 1.5px;
+}
+
+/*  App Container */
+.app-container {
+  display: flex;
+  flex-grow: 1;      /* Fills all remaining space below the header */
+  overflow: hidden;  /* Crucial: ensures only the child elements scroll */
+}
+
+
+/* --- Sidebar (Table of Contents) --- */
+.toc-sidebar {
+  width: 300px;
+  flex-shrink: 0;
+  background-color: var(--sidebar-bg);
+  border-right: 1px solid #dcdcdc;
+  padding: 2.5rem 2rem;
+  overflow-y: auto; /* Scrollable if the index gets long */
+}
+
+.toc-title {
+  font-family: var(--font-sans);
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--text-muted);
+  border-bottom: 1px solid #ccc;
+  padding-bottom: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.toc-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.toc-item {
+  margin-bottom: 0.8rem;
+}
+
+.toc-link {
+  text-decoration: none;
+  color: var(--text-main);
+  font-size: 1.1rem;
+  padding: 0.4rem 0.75rem;
+  border-left: 3px solid transparent;
+  border-radius: 0 4px 4px 0;
+  cursor: pointer;
+  transition: color 0.2s ease, padding-left 0.2s ease;
+  display: block;
+}
+
+/* Hover State */
+.toc-link:hover {
+  color: var(--accent-color);
+  background-color: #f2eded; /* A very faint tint of your new light rose */
+
+  /* Optional: a subtle underline or shift to further signal interactivity */
+  text-decoration: none;
+}
+
+/* Active State */
+.toc-link.active {
+  color: var(--accent-color);
+  font-weight: bold;
+  font-style: italic;
+  background-color: #faf2f2;
+  border-left-color: var(--accent-color);
+
+  /* The active item shouldn't necessarily look "clickable" if you're already there,
+     but keeping the pointer is standard for navigation menus. */
+  cursor: default;
+}
+
+/* --- Main Content Area --- */
+.main-content {
+  flex-grow: 1;
+  padding: 4rem 15%; /* Generous padding for readability */
+  overflow-y: auto;  /* Independent scrolling for reading */
+  background-color: var(--bg-paper);
+}
+
+/* --- Scholarly Typography --- */
+h1, h2, h3, h4 {
+  font-weight: normal;
+  color: var(--text-main);
+}
+
+h1 {
+  font-size: 2.5rem;
+  border-bottom: 2px solid var(--text-main);
+  padding-bottom: 0.5rem;
+  margin-bottom: 2rem;
+}
+
+h2 {
+  font-size: 1.75rem;
+  margin-top: 2.5rem;
+}
+
+p {
+  font-size: 1.15rem;
+  margin-bottom: 1.5rem;
+  text-align: justify; /* Gives it a textbook/typeset block feel */
+  hyphens: auto;
+}
+
+/* Code and Algorithms */
+pre, code {
+  font-family: var(--font-mono);
+  font-size: 0.95em;
+}
+
+code {
+  background-color: var(--code-bg);
+  padding: 0.1rem 0.3rem;
+  border-radius: 3px;
+}
+
+pre {
+  background-color: var(--code-bg);
+  padding: 1.5rem;
+  overflow-x: auto;
+  border-left: 4px solid var(--accent-color); /* Visual anchor for code blocks */
+  border-radius: 2px;
+  line-height: 1.4;
+}
+

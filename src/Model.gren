@@ -1,0 +1,19 @@
+module Model exposing ( initialModel, Model )
+
+import Browser.Navigation as Navigation
+
+import Flags exposing (Flags)
+import Pages exposing (Page(..))
+
+type alias Model =
+    { navigationKey: Navigation.Key
+    , flags: Flags
+    , page: Page
+    }
+
+initialModel : Navigation.Key -> Flags -> Model
+initialModel navigationKey flags =
+    { navigationKey = navigationKey
+    , flags = flags
+    , page = ImportsPage
+    }
