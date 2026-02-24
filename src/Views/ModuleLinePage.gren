@@ -1,22 +1,13 @@
 module Views.ModuleLinePage exposing (view)
 
 import Html exposing (Html, h1, h2, div, p, text, pre)
-import Html.Attributes exposing (class, id)
-import Html.Events exposing (onClick)
-import String
+
+import PrettyExpressive as P
 
 import CodeView
 import Msg exposing (Msg(..))
 import Model exposing (..)
-
-sample : String
-sample = """
-viewItems : Array String -> String
-viewItems items =
-    items
-        |> Array.sort
-        |> String.join ", "
-"""
+import PrettyConfig exposing (cf80, guidelines)
 
 view : Model -> Html Msg
 view model =
@@ -24,16 +15,51 @@ view model =
         h1 [] [ text "Imports" ],
 
         p [] [
-            text "This is a sentence."
+            text """
+Let's look at different options of displaying the first
+line of a file, the "module" line. There are different ways to render
+it when the list of "exposing" symbols is long.
+"""
         ],
-        pre [] [ 
-            text "this is one line with\na second line",
-            text "\n",
-            text "this is a new text attribute"
-        ],
 
-        CodeView.view sample [10, 20, 40, 80] "Example 1"
-
-
-
+        section_onePerLine model
     ]
+
+
+
+onePerLine : P.Doc cost
+onePerLine =
+    let
+        exposingList : P.Doc cost
+        exposingList =
+            P.nest 4
+                (P.concat P.hardNl
+                    (P.vcat
+                        [ P.text "( Command(..)"
+                        , P.text ", MakeFlags"
+                        , P.text ", DiffArgs(..)"
+                        , P.text ", parser"
+                        , P.text ")"
+                        ]
+                    )
+                )
+    in
+        P.concat
+            (P.text "module Terminal.Parser exposing")
+            exposingList
+
+section_onePerLine : Model -> Html Msg
+section_onePerLine model =
+    let
+        rendered = when P.prettyFormat cf80 onePerLine is
+            Nothing -> "Failed to render"
+            Just prettyPrinted -> prettyPrinted
+    in
+        p [] [
+            text """
+Let's look at a module that exposes many symbols. The format that is generally
+used is to show one symbol per line, with one indentation.
+""",
+
+            CodeView.view rendered guidelines "One Exposed Symbol Per Line"
+        ]

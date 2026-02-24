@@ -8,8 +8,11 @@ import Html.Attributes exposing (attribute)
 import Svg exposing (..)
 import Svg.Attributes exposing (..)
 
-{-
-(from Gemini LLM)
+{- Draw monospaced text, with vertical guidelines at specified
+column positions, and with alternating very-slightly higlighted rows
+(zebra strips) of text.
+
+Thank you, Gemini LLM.
 
 Key Technical Details:
 

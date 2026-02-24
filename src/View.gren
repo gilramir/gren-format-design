@@ -43,9 +43,6 @@ render_body model =
 
 render_toc : Model -> Html Msg
 render_toc model =
-    let
-        importClass = if model.page == ImportsPage then "active" else ""
-    in
     nav [ class "toc-sidebar" ] [
         h2 [ class "toc-title" ] [ text "Contents" ],
         ul [ class "toc-list" ]
@@ -65,18 +62,18 @@ render_toc_entries model =
             ]
         ) allPages
 
+render_page_body : Model -> Html Msg
+render_page_body model =
+    when model.page is
+        IntroPage -> Views.IntroPage.view model
+        ModuleLinePage -> Views.ModuleLinePage.view model
+--        ImportsPage -> Views.ImportsPage.view model
+
 render_page_view : Model -> Html Msg
 render_page_view model =
-    let
-        pageBody =
-            when model.page is
-                IntroPage -> Views.IntroPage.view model
-                ModuleLinePage -> Views.ModuleLinePage.view model
-                ImportsPage -> Views.ImportsPage.view model
-    in
     nav [ class "main-content" ] [
         article [ id "content-area" ] [
-            pageBody
+            render_page_body model
         ]
     ]
 

@@ -5,19 +5,107 @@ import Html.Attributes exposing (class, id)
 import Html.Events exposing (onClick)
 import String
 
+import PrettyExpressive as P
+
 import CodeView
 import Msg exposing (Msg(..))
 import Model exposing (..)
+import PrettyConfig exposing (cf80, guidelines)
 
+viewItems : P.Doc cost
+viewItems = 
+    let
+        pipelineSteps : P.Doc cost
+        pipelineSteps =
+            P.nest 4
+                (P.concat P.hardNl
+                    (P.vcat
+                        [ P.text "|> Array.sort"
+                        , P.text "|> String.join \", \""
+                        ]
+                    )
+                )
+
+        functionBody : P.Doc cost
+        functionBody =
+            P.nest 4
+                (P.concat P.hardNl
+                    (P.concat (P.text "items") pipelineSteps)
+                )
+    in
+    P.concat_array
+        [ P.text "viewItems : Array String -> String"
+        , P.hardNl
+        , P.text "viewItems items ="
+        , functionBody
+        ]
 
 view : Model -> Html Msg
 view model =
+    let
+        rendered = when P.prettyFormat cf80 viewItems is
+            Nothing -> "Failed to render"
+            Just prettyPrinted -> prettyPrinted
+    in
     div [] [
         h1 [] [ text "Introduction" ],
 
         p [] [ text """
 This document discusses the design choices for "gren format".
 """
-        ]
+        ],
 
+        p [] [ text """
+While the examples often show 80-column widths, this just for
+drawing the examples, and isn't a declaration that the standard width,
+or the width at which we try to keep the document "pretty".
+should be 80 columns.
+"""
+        ],
+
+
+        p [] [ text """
+All examples in this document are rendered by using the Pretty Expressive
+Printer. For example, this rendering:
+"""
+       ],
+
+        CodeView.view rendered guidelines "One Exposed Symbol Per Line",
+
+        p [] [ text """
+Is directly produced from this Gren code (which may not be the ideal code
+for this; it's just one example):
+"""
+        ],
+
+        pre [] [ text """
+viewItems : P.Doc cost
+viewItems = 
+    let
+        pipelineSteps : P.Doc cost
+        pipelineSteps =
+            P.nest 4
+                (P.concat P.hardNl
+                    (P.vcat
+                        [ P.text "|> Array.sort"
+                        , P.text "|> String.join \", \""
+                        ]
+                    )
+                )
+
+        functionBody : P.Doc cost
+        functionBody =
+            P.nest 4
+                (P.concat P.hardNl
+                    (P.concat (P.text "items") pipelineSteps)
+                )
+    in
+    P.concat_array
+        [ P.text "viewItems : Array String -> String"
+        , P.hardNl
+        , P.text "viewItems items ="
+        , functionBody
+        ]
+"""
+        ]
     ]

@@ -7,6 +7,7 @@
     "gren-version": "0.6.3",
     "dependencies": {
         "direct": {
+            "gilramir/gren-pretty-expressive": "1.0.0",
             "gren-lang/browser": "6.0.2",
             "gren-lang/core": "7.3.0",
             "gren-lang/url": "6.0.0"

@@ -1,0 +1,10 @@
+module PrettyConfig exposing (..)
+
+import PrettyExpressive as P
+
+cf80 : P.CostFactory P.DefaultCostTuple
+cf80 =
+    P.defaultCostFactory { pageWidth = 80, computationWidth = Nothing }
+
+guidelines : Array Int
+guidelines = [10, 20, 30, 40, 50, 60, 70, 80]
