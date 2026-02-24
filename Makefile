@@ -13,10 +13,10 @@ SRCS = $(wildcard src/*.gren src/Views/*.gren)
 
 
 static/js/main.js: $(SRCS) | static/js
-	elm make --output=$@ src/Main.elm
+	gren make --output=$@ Main
 
 static/js/main.prod.js: $(SRCS) | static/js
-	elm make --optimize --output=$@ src/Main.elm
+	gren make --optimize --output=$@ Main
 
 static/js:
 	mkdir -p $@
