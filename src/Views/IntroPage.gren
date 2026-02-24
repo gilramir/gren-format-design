@@ -70,7 +70,7 @@ Printer. For example, this rendering:
 """
        ],
 
-        CodeView.view rendered guidelines "One Exposed Symbol Per Line",
+        CodeView.view rendered guidelines "viewItems from https://gren-lang.org",
 
         p [] [ text """
 Is directly produced from this Gren code (which may not be the ideal code
