@@ -8,7 +8,13 @@ import Model exposing (..)
 import Msg exposing (Msg(..))
 import Pages exposing (Page(..))
 import RouteHandler exposing (setNewPage)
-import Routes exposing (Route(..), routeToUrl, prependSlashIfNotEmpty)
+import Routes exposing (Route(..), routeToUrl)
+
+pageToRoute : Page -> Route
+pageToRoute page =
+    when page is
+        IntroPage -> HomeRoute
+        ModuleLinePage -> ModuleLineRoute
 
 update : Msg -> Model -> { model: Model, command: Cmd Msg}
 update msg model =
@@ -39,5 +45,6 @@ update msg model =
                 { model
                     | page = page
                 }
-            , command = Cmd.none
+            , command = Navigation.pushUrl model.navigationKey
+                (routeToUrl model (pageToRoute page))
             }

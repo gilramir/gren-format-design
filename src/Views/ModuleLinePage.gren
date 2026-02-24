@@ -12,7 +12,7 @@ import PrettyConfig exposing (cf80, guidelines)
 view : Model -> Html Msg
 view model =
     div [] [
-        h1 [] [ text "Imports" ],
+        h1 [] [ text "The Module Line" ],
 
         p [] [
             text """

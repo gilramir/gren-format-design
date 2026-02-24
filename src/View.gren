@@ -1,7 +1,7 @@
 module View exposing (view)
 
 import Browser exposing (Document)
-import Html exposing (Html, h1, h2, div, nav, article, ul, li, text, header)
+import Html exposing (Html, h1, h2, h4, div, nav, article, ul, li, text, header)
 import Html.Attributes exposing (class, id)
 import Html.Events exposing (onClick)
 import String
@@ -12,6 +12,7 @@ import Pages exposing (Page(..), allPages, pageTitle)
 import Views.IntroPage
 import Views.ImportsPage
 import Views.ModuleLinePage
+import Version
 
 doc_title = "The Design of \"gren format\""
 
@@ -31,6 +32,10 @@ render_header model =
     header [ class "top-header" ] [
         h1 [ class "site-title" ] [
             text doc_title
+        ],
+        div [ class "site-version" ] [
+            text ("Generated at " ++ Version.timestamp ++
+            " from git sha " ++ Version.sha)
         ]
     ]
 

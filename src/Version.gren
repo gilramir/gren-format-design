@@ -1,0 +1,4 @@
+module Version exposing (..)
+
+sha = "foo"
+timestamp = "time"

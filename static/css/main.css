@@ -50,7 +50,14 @@ body {
   font-size: 1.75rem;
   font-family: var(--font-serif);
   font-weight: normal;
-  letter-spacing: 1.5px;
+  letter-spacing: 1.2px;
+}
+
+.site-version {
+  margin: 0;
+  font-size: 1rem;
+  font-family: var(--font-serif);
+  font-weight: normal;
 }
 
 /*  App Container */
