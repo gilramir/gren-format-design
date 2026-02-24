@@ -6,6 +6,7 @@ import Html.Events exposing (onClick)
 import String
 
 import PrettyExpressive as P
+import PrettyExpressive.Debug exposing (debugShowDoc)
 
 import CodeView
 import Msg exposing (Msg(..))
@@ -73,8 +74,13 @@ Printer. For example, this rendering:
         CodeView.view rendered guidelines "viewItems from https://gren-lang.org",
 
         p [] [ text """
-Is directly produced from this Gren code (which may not be the ideal code
-for this; it's just one example):
+Is directly produced from intermediate format:
+""" ],
+        pre [] [ text <| debugShowDoc viewItems ],
+
+        p [] [ text """
+which was generated from this Gren code (which may not be the ideal code
+for this scenario; it's just one example!):
 """
         ],
 

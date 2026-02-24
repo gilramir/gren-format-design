@@ -1,0 +1,66 @@
+module DocConstructors exposing (..)
+
+import PrettyExpressive as P
+
+{-
+Given a list of strings, produce ( s1, s2, s3 )
+that tries to fit on one line, but if it doesn't, will
+render one per line.
+
+The three outputs this produces:
+```
+-- flat (everything fits):
+( Command(..), MakeFlags, DiffArgs(..), parser )
+
+-- broken (doesn't fit):
+( Command(..)
+, MakeFlags
+, DiffArgs(..)
+, parser
+)
+
+-- single element:
+(Command(..))
+
+-- empty:
+()
+
+The caller needs to group this with the desired nesting level, like this:
+
+P.group
+    (P.nest 4
+        (P.concat P.nl
+            (parenList [ "Command(..)", "MakeFlags", "DiffArgs(..)", "parser" ])
+        )
+    )
+-}
+parenList : Array String -> P.Doc cost
+parenList items =
+    when Array.popFirst items is
+        Nothing ->
+            -- Empty list: "()"
+            P.concat P.lparen P.rparen
+
+        Just { first, rest } ->
+            if Array.isEmpty rest then
+                -- Single element: "(foo)" — no separators, no newlines
+                P.concat P.lparen (P.concat (P.text first) P.rparen)
+
+            else
+                -- Multiple elements.
+                -- Build doc nodes: "( item1", ", item2", ..., ", itemN"
+                let
+                    firstDoc = P.text ("( " ++ first)
+                    restDocs = Array.map (\s -> P.text (", " ++ s)) rest
+                    allItemDocs = [ firstDoc ] ++ restDocs
+
+                    -- All items joined with breakDoc (collapses to nothing when flat)
+                    itemsJoined =
+                        P.foldDoc
+                            (\a b -> P.concat a (P.concat P.breakDoc b))
+                            allItemDocs
+                in
+                -- The closing ")" is always joined with nl, not breakDoc.
+                -- When flat: nl collapses to a space, giving "( a, b, c )"
+                -- When broken: nl gives a real newline, putting ")" on its own line
+                P.concat itemsJoined (P.concat P.nl P.rparen)
