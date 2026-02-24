@@ -64,3 +64,79 @@ parenList items =
                 -- When flat: nl collapses to a space, giving "( a, b, c )"
                 -- When broken: nl gives a real newline, putting ")" on its own line
                 P.concat itemsJoined (P.concat P.nl P.rparen)
+
+
+
+{-| Like `parenList`, but items flow across lines rather than being either
+all-flat or all-broken. The printer fits as many items as possible on each
+line, breaking to the next line (indented by `nestIndent`) only when the
+next item would overflow.
+
+    flowList 4 [ "Command(..)", "MakeFlags", "DiffArgs(..)", "parser" ]
+
+Might render (at a narrow width) as:
+
+    ( Command(..), MakeFlags
+    , DiffArgs(..), parser
+    )
+
+Or (at a wide width) as:
+
+    ( Command(..), MakeFlags, DiffArgs(..), parser )
+
+...depending on the page width. The closing ")" is always joined with `nl`
+(not `breakDoc`), so it gets a space in the widest flat case, and its own
+line when anything breaks.
+
+The caller is responsible for the leading separator and any outer nesting,
+just as with `parenList`:
+
+    P.hardNl
+    |> P.concat (flowList 4 [...])
+
+-}
+flowList : Int -> Array String -> P.Doc cost
+flowList nestIndent items =
+    when Array.popFirst items is
+        Nothing ->
+            -- Empty: "()"
+            P.concat P.lparen P.rparen
+
+        Just { first, rest } ->
+            if Array.isEmpty rest then
+                -- Single element: "(foo)" — no breaks needed
+                P.concat P.lparen (P.concat (P.text first) P.rparen)
+
+            else
+                let
+                    -- Prepend "( " to the first item, ", " to the rest.
+                    -- The comma-space is part of the text token so that
+                    -- breakDoc (the separator) collapses to nothing in the
+                    -- flat case, producing "( a, b, c" without double spaces.
+                    firstDoc = P.text ("( " ++ first)
+                    restDocs = Array.map (\s -> P.text (", " ++ s)) rest
+                    allDocs  = [ firstDoc ] ++ restDocs
+
+                    -- Each separator between adjacent items is wrapped in its
+                    -- own independent `group`. The printer evaluates each one
+                    -- at the current column: if placing the next item on this
+                    -- line is cheaper (it fits), the breakDoc collapses to "".
+                    -- If the line would overflow, the breakDoc becomes a real
+                    -- newline and `nest nestIndent` supplies the indentation.
+                    --
+                    -- Because each group is independent, some gaps can be flat
+                    -- while others break — producing the flowing fill layout.
+                    body =
+                        P.foldDoc
+                            (\a b -> P.concat a (P.group (P.concat P.breakDoc b)))
+                            allDocs
+                in
+                -- The closing ")" is separated by `nl` (not `breakDoc`):
+                --   flat case:   nl → " ", giving "...last-item )"
+                --   broken case: nl → newline + indent, giving ")" on its own line
+                -- `nest nestIndent` sets the indentation level for every break
+                -- that fires inside this document.
+                P.nest nestIndent
+                    (P.concat body (P.concat P.nl P.rparen))
+
+
