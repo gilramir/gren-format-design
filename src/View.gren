@@ -32,10 +32,6 @@ render_header model =
     header [ class "top-header" ] [
         h1 [ class "site-title" ] [
             text doc_title
-        ],
-        div [ class "site-version" ] [
-            text ("Generated at " ++ Version.timestamp ++
-            " from git sha " ++ Version.sha)
         ]
     ]
 
@@ -51,7 +47,12 @@ render_toc model =
     nav [ class "toc-sidebar" ] [
         h2 [ class "toc-title" ] [ text "Contents" ],
         ul [ class "toc-list" ]
-            (render_toc_entries model)
+            (render_toc_entries model),
+
+        div [ class "toc-footer" ] [
+            text ("Generated at " ++ Version.timestamp ++
+            " from git sha " ++ Version.sha)
+        ]
     ]
 
 render_toc_entries: Model -> Array (Html Msg)

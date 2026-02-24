@@ -53,13 +53,6 @@ body {
   letter-spacing: 1.2px;
 }
 
-.site-version {
-  margin: 0;
-  font-size: 1rem;
-  font-family: var(--font-serif);
-  font-weight: normal;
-}
-
 /*  App Container */
 .app-container {
   display: flex;
@@ -76,6 +69,8 @@ body {
   border-right: 1px solid #dcdcdc;
   padding: 2.5rem 2rem;
   overflow-y: auto; /* Scrollable if the index gets long */
+  display: flex;
+  flex-direction: column;
 }
 
 .toc-title {
@@ -97,6 +92,16 @@ body {
 
 .toc-item {
   margin-bottom: 0.8rem;
+}
+
+/* Timestamp / generation info pinned to the bottom of the sidebar */
+.toc-footer {
+  margin-top: auto;
+  padding-top: 1rem;
+  border-top: 1px solid #ccc;
+  font-family: var(--font-sans);
+  font-size: 0.78rem;
+  color: var(--text-muted);
 }
 
 .toc-link {
