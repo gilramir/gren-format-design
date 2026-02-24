@@ -162,7 +162,6 @@ h2 {
 p {
   font-size: 1.15rem;
   margin-bottom: 1.5rem;
-  text-align: justify; /* Gives it a textbook/typeset block feel */
   hyphens: auto;
 }
 

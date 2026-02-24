@@ -7,7 +7,7 @@ import PrettyExpressive as P
 import CodeView
 import Msg exposing (Msg(..))
 import Model exposing (..)
-import PrettyConfig exposing (cf80, guidelines)
+import PrettyConfig exposing (cf60, cf80, guidelines, guidelines60)
 
 view : Model -> Html Msg
 view model =
@@ -22,7 +22,8 @@ it when the list of "exposing" symbols is long.
 """
         ],
 
-        section_onePerLine model
+        section_onePerLine model,
+        section_allOrNothing model
     ]
 
 
@@ -55,11 +56,81 @@ section_onePerLine model =
             Nothing -> "Failed to render"
             Just prettyPrinted -> prettyPrinted
     in
-        p [] [
-            text """
+        div [] [
+            p [] [
+                text """
 Let's look at a module that exposes many symbols. The format that is generally
 used is to show one symbol per line, with one indentation.
-""",
-
+"""
+            ],
             CodeView.view rendered guidelines "One Exposed Symbol Per Line"
+        ]
+
+
+-- Either all the exposingItems fit on one line, or they each
+-- are on their own line
+allOrNothing : P.Doc cost
+allOrNothing =
+    let
+        -- Join items with breakable zero-width separators.
+        -- Flat:   "( Command (..), MakeFlags, DiffArgs (..), parser )"
+        -- Broken: each item on its own line (breakDoc → real newline at indent=4)
+        joinItems : Array (P.Doc cost) -> P.Doc cost
+        joinItems =
+            P.foldDoc (\a b -> P.concat a (P.concat P.breakDoc b))
+
+        exposingItems : P.Doc cost
+        exposingItems =
+            joinItems
+                [ P.text "( Command(..)"
+                , P.text ", MakeFlags"
+                , P.text ", DiffArgs(..)"
+                , P.text ", parser"
+                , P.text ")"
+                ]
+
+        -- group tries flat first; falls back to broken if it overflows.
+        -- nest 4 means all broken newlines (both the leading nl and the
+        -- breakDoc separators between items) land at column 4.
+        exposingList : P.Doc cost
+        exposingList =
+            P.group
+                (P.nest 4
+                    (P.concat P.nl exposingItems)
+                )
+
+    in
+        P.concat
+            (P.text "module Terminal.Parser exposing")
+            exposingList
+
+section_allOrNothing : Model -> Html Msg
+section_allOrNothing model =
+    let
+        rendered80 = when P.prettyFormat cf80 allOrNothing is
+            Nothing -> "Failed to render"
+            Just prettyPrinted -> prettyPrinted
+
+        rendered60 = when P.prettyFormat cf60 allOrNothing is
+            Nothing -> "Failed to render"
+            Just prettyPrinted -> prettyPrinted
+    in
+        div [] [
+            p [] [
+                text """
+Another option is to try to fit all the exposed symbols on the same line.
+If they fit, great. Yes, this example is a little off in that there is
+a space after the "(" but no space before the ")". Ignore that for now.
+"""
+            ],
+            CodeView.view rendered80 guidelines "All on the same line",
+
+            p [] [
+                text """
+Whereas if we rendered that same Doc at 60 columns, it would automatically
+be rendered in a multiline format because the single-line version is too long.
+"""
+            ],
+            CodeView.view rendered60 guidelines60 "Split into multiple lines"
+
         ]

@@ -29,7 +29,7 @@ update msg model =
         -- User clicked on a bad link
         VisitUrl _ ->
             -- XXX Go to a Not Found page?
-            { model =model
+            { model = model
             , command = Cmd.none
             }
 
