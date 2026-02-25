@@ -58,15 +58,15 @@ It uses the """,
                 [ text "Pretty Expressive Printer"],
             text " package. You can view ",
             a [href "https://github.com/gilramir/gren-format-design"]
-                [ text "the source code for this web-app document" ],
+                [ text "the source code" ],
             text """
-if you would like to see how these examples were made. The Gren code is
-actually using the Pretty Expressive Printer to render this document."""
+for this web-app/document if you would like to see how these examples were made.
+The Gren code is actually using the Pretty Expressive Printer to render this document."""
         ],
 
         p [] [ text """
-While the examples often show 80-column widths, this just for
-drawing the examples, and isn't a declaration that the standard width,
+While the examples often show 80-column widths, this is just for
+rendering the examples, and isn't a declaration that the standard width,
 or the width at which we try to keep the document "pretty".
 should be 80 columns.
 """
