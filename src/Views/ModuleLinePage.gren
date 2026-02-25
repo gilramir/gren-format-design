@@ -27,7 +27,7 @@ it when the list of "exposing" symbols is long.
         h2 [] [ text "The Traditional Way" ],
         section_onePerLine model,
 
-        h2 [] [ text "Try to fit on line line, but revert to Traditional" ],
+        h2 [] [ text "Try to fit on one line, but revert to Traditional" ],
         section_allOrNothing model,
 
         h2 [] [ text "Flow across many lines" ],
