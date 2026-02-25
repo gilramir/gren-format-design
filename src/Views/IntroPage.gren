@@ -59,9 +59,8 @@ It uses the """,
             text " package. You can view ",
             a [href "https://github.com/gilramir/gren-format-design"]
                 [ text "the source code" ],
-            text """
-for this web-app/document if you would like to see how these examples were made.
-The Gren code is actually using the Pretty Expressive Printer to render this document."""
+            text " for this web-app/document if you would like to see how these examples were made.",
+            text "The Gren code is actually using the Pretty Expressive Printer to render this document."
         ],
 
         p [] [ text """
