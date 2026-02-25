@@ -2,6 +2,28 @@ module DocConstructors exposing (..)
 
 import PrettyExpressive as P
 
+
+{- Useful for traditionally-formatted "exposing" statements
+for "module" and "import".
+-}
+listOnePerLine : Int -> Array String -> P.Doc cost
+listOnePerLine indent items =
+    when Array.popFirst items is
+        Nothing ->
+            P.concat P.lparen P.rparen
+
+        Just { first, rest } ->
+            let
+                firstDoc = P.text ("( " ++ first)
+                restDocs = Array.map (\s -> P.text (", " ++ s)) rest
+                itemDocs = [ firstDoc ] ++ restDocs ++ [ P.rparen ]
+            in
+            P.nest indent
+                (P.concat P.hardNl
+                    (P.vcat itemDocs)
+                )
+
+
 {-
 Given a list of strings, produce ( s1, s2, s3 )
 that tries to fit on one line, but if it doesn't, will
@@ -95,8 +117,8 @@ just as with `parenList`:
     |> P.concat (flowList 4 [...])
 
 -}
-flowList : Int -> Array String -> P.Doc cost
-flowList nestIndent items =
+flowList0 : Int -> Array String -> P.Doc cost
+flowList0 nestIndent items =
     when Array.popFirst items is
         Nothing ->
             -- Empty: "()"
@@ -139,4 +161,87 @@ flowList nestIndent items =
                 P.nest nestIndent
                     (P.concat body (P.concat P.nl P.rparen))
 
+{-
+Like flowList0, but...
 
+Now `")"`  is baked into the final text token before folding, so the
+last gap before it is still an independent `group (concat breakDoc ...)`.
+The `)` just comes along for the ride. The outputs become:
+
+-- wide:
+( Command(..), MakeFlags, DiffArgs(..), parser )
+
+-- narrow, flowing:
+( Command(..), MakeFlags
+, DiffArgs(..), parser )
+
+-- very narrow:
+( Command(..)
+, MakeFlags
+, DiffArgs(..)
+, parser )
+-}
+
+flowList : Int -> Array String -> P.Doc cost
+flowList nestIndent items =
+    when Array.popFirst items is
+        Nothing ->
+            P.concat P.lparen P.rparen
+
+        Just { first, rest } ->
+            if Array.isEmpty rest then
+                P.concat P.lparen (P.concat (P.text first) P.rparen)
+
+            else
+                let
+                    firstDoc = P.text ("( " ++ first)
+                    restDocs = Array.map (\s -> P.text (", " ++ s)) rest
+                    allDocs  = [ firstDoc ] ++ restDocs
+
+                    -- Append ")" directly onto the last item so it always
+                    -- travels with it — no separator, no chance to break.
+                    allDocsWithParen =
+                        when Array.popLast allDocs is
+                            Nothing ->
+                                allDocs
+                            Just { initial, last } ->
+                                initial ++ [ P.concat last (P.text " )") ]
+
+                    body =
+                        P.foldDoc
+                            (\a b -> P.concat a (P.group (P.concat P.breakDoc b)))
+                            allDocsWithParen
+                in
+                P.nest nestIndent body
+
+
+{-
+Not useful yet, but, just in case, align 2 columns of pure text
+-}
+{-| Render an array of (left, right) string pairs as a two-column table,
+with the right column vertically aligned across all rows.
+
+Rows where the right string is empty render as just the left text.
+
+    alignedColumns
+        [ { left = "import CodeView",         right = "" }
+        , { left = "import DocConstructors",   right = "exposing (parenList, flowList)" }
+        , { left = "import Msg",               right = "exposing (Msg(..))" }
+        ]
+
+The printer finds the optimal separator column (wide enough that no left cell
+overflows it) and aligns all right cells there.
+-}
+alignedStringColumns :
+    Array { left : String, right : String }
+    -> P.Doc cost
+alignedStringColumns rows =
+    P.twoColumns
+        (Array.map
+            (\{ left, right } ->
+                { a = P.text left
+                , b = P.text right
+                }
+            )
+            rows
+        )

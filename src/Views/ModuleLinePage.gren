@@ -6,9 +6,9 @@ import PrettyExpressive as P
 import PrettyExpressive.Debug exposing (debugShowDoc)
 
 import CodeView
-import DocConstructors exposing (parenList, flowList)
+import DocConstructors exposing (listOnePerLine, parenList, flowList)
 import Msg exposing (Msg(..))
-import Model exposing (..)
+import Model exposing (Model)
 import PrettyConfig exposing (cf60, cf80, guidelines, guidelines60)
 
 view : Model -> Html Msg
@@ -39,19 +39,8 @@ it when the list of "exposing" symbols is long.
 onePerLine : P.Doc cost
 onePerLine =
     let
-        exposingList : P.Doc cost
-        exposingList =
-            P.nest 4
-                (P.concat P.hardNl
-                    (P.vcat
-                        [ P.text "( Command(..)"
-                        , P.text ", MakeFlags"
-                        , P.text ", DiffArgs(..)"
-                        , P.text ", parser"
-                        , P.text ")"
-                        ]
-                    )
-                )
+        exposingList = listOnePerLine 4
+            [ "Command(..)", "MakeFlags", "DiffArgs(..)", "parser" ]
     in
         P.concat
             (P.text "module Terminal.Parser exposing")
@@ -84,43 +73,6 @@ This is generated from this Doc.
 
         ]
 
-
--- Either all the exposingItems fit on one line, or they each
--- are on their own line
-allOrNothing0 : P.Doc cost
-allOrNothing0 =
-    let
-        -- Join items with breakable zero-width separators.
-        -- Flat:   "( Command (..), MakeFlags, DiffArgs (..), parser )"
-        -- Broken: each item on its own line (breakDoc → real newline at indent=4)
-        joinItems : Array (P.Doc cost) -> P.Doc cost
-        joinItems =
-            P.foldDoc (\a b -> P.concat a (P.concat P.breakDoc b))
-
-        exposingItems : P.Doc cost
-        exposingItems =
-            joinItems
-                [ P.text "( Command(..)"
-                , P.text ", MakeFlags"
-                , P.text ", DiffArgs(..)"
-                , P.text ", parser"
-                , P.text ")"
-                ]
-
-        -- group tries flat first; falls back to broken if it overflows.
-        -- nest 4 means all broken newlines (both the leading nl and the
-        -- breakDoc separators between items) land at column 4.
-        exposingList : P.Doc cost
-        exposingList =
-            P.group
-                (P.nest 4
-                    (P.concat P.nl exposingItems)
-                )
-
-    in
-        P.concat
-            (P.text "module Terminal.Parser exposing")
-            exposingList
 
 allOrNothing: P.Doc cost
 allOrNothing =
@@ -202,9 +154,11 @@ flowing =
                         ]
 
         exposingList : P.Doc cost
-        exposingList =
+        exposingList = exposingItems
+        {-
             P.hardNl
                 |> P.concat exposingItems
+                -}
     in
         P.concat
             -- We have to put the space after "exposing"

@@ -13,6 +13,7 @@ setNewPage maybeRoute model =
             when maybeRoute is
                 Just HomeRoute -> IntroPage
                 Just ModuleLineRoute -> ModuleLinePage
+                Just ImportsRoute -> ImportsPage
                 -- Not a valid URL. Go Home.
                 Nothing -> IntroPage
     in

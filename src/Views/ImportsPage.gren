@@ -1,22 +1,16 @@
 module Views.ImportsPage exposing (view)
 
 import Html exposing (Html, h1, h2, div, p, text, pre)
-import Html.Attributes exposing (class, id)
-import Html.Events exposing (onClick)
-import String
+
+import PrettyExpressive as P
+import PrettyExpressive.Debug exposing (debugShowDoc)
 
 import CodeView
+import DocConstructors exposing (listOnePerLine, parenList, flowList)
 import Msg exposing (Msg(..))
-import Model exposing (..)
+import Model exposing (Model)
+import PrettyConfig exposing (cf60, cf80, guidelines, guidelines60)
 
-sample : String
-sample = """
-viewItems : Array String -> String
-viewItems items =
-    items
-        |> Array.sort
-        |> String.join ", "
-"""
 
 view : Model -> Html Msg
 view model =
@@ -24,16 +18,151 @@ view model =
         h1 [] [ text "Imports" ],
 
         p [] [
-            text "This is a sentence."
+            text """
+"import" statements are very similar to "module" statemnts.
+However, when the program has many "import" statements in sequence,
+there is an opportunity to align the "exposing" part in a column.
+"""
         ],
-        pre [] [ 
-            text "this is one line with\na second line",
-            text "\n",
-            text "this is a new text attribute"
-        ],
 
-        CodeView.view sample [10, 20, 40, 80] "Example 1"
+        h2 [] [ text "Non-aligned, One-Per-Line" ],
+        section_nonAlignedOnePer model,
 
+        h2 [] [ text "Non-aligned, Flowing Across" ],
+        section_nonAlignedFlowing model,
 
-
+        h2 [] [ text "Aligned, Flowing Across" ],
+        section_alignedFlowing model
     ]
+
+tradImportOnePer : String -> Array String -> P.Doc cost
+tradImportOnePer pkg symbols =
+    let
+        exposingItems = parenList symbols
+
+        exposingList =
+            P.group
+                (P.nest 4
+                    (P.concat P.nl exposingItems)
+                )
+    in
+        if Array.length symbols == 0 then
+                P.text ("import " ++ pkg)
+        else
+            P.concat
+                (P.text ("import " ++ pkg ++ " exposing "))
+                exposingList
+
+
+nonAlignedOnePer : P.Doc cost
+nonAlignedOnePer =
+    P.vcat [
+        tradImportOnePer "CodeView" [],
+        tradImportOnePer "DocConstructors" [ "parenList", "flowList" ],
+        tradImportOnePer "Short" [ "oneSymbol" ],
+        tradImportOnePer "PrettyConfig" [ "cf60", "cf80", "guidelines",
+        "guidelines60", "anotherLongSymbol" ]
+    ]
+
+section_nonAlignedOnePer : Model -> Html Msg
+section_nonAlignedOnePer model =
+    let
+        rendered = when P.prettyFormat cf80 nonAlignedOnePer is
+            Nothing -> "Failed to render"
+            Just prettyPrinted -> prettyPrinted
+    in
+        div [] [
+            p [] [
+                text """
+Here is a non-aligned set of "import" statements, for reference.
+The first import has no list of symbols.
+The second and thirs lines have short lists,
+and the last one has a long list that can't fit on a single line.
+"""
+            ],
+            CodeView.view rendered guidelines "Import statement block, not aligned, one-per-lien"
+
+        ]
+
+
+tradImportFlowing : String -> Array String -> P.Doc cost
+tradImportFlowing pkg symbols =
+    let
+        exposingItems = flowList 4 symbols
+        exposingList = exposingItems
+        {-
+            P.hardNl
+                |> P.concat exposingItems
+                -}
+    in
+        if Array.length symbols == 0 then
+                P.text ("import " ++ pkg)
+        else
+            P.concat
+                (P.text ("import " ++ pkg ++ " exposing "))
+                exposingList
+
+nonAlignedFlowing : P.Doc cost
+nonAlignedFlowing =
+    P.vcat [
+        tradImportFlowing "CodeView" [],
+        tradImportFlowing "DocConstructors" [ "parenList", "flowList" ],
+        tradImportFlowing  "Short" [ "oneSymbol" ],
+        tradImportFlowing "PrettyConfig" [ "cf60", "cf80", "guidelines",
+        "guidelines60", "anotherLongSymbol" ]
+    ]
+
+section_nonAlignedFlowing : Model -> Html Msg
+section_nonAlignedFlowing model =
+    let
+        rendered = when P.prettyFormat cf80 nonAlignedFlowing is
+            Nothing -> "Failed to render"
+            Just prettyPrinted -> prettyPrinted
+    in
+        div [] [
+            p [] [
+                text """
+Here is the same block, but allowing symbols after the first line to flow
+across the line.
+"""
+            ],
+            CodeView.view rendered guidelines "Import statement block, not aligned, flowing across"
+
+        ]
+
+
+exposingColumnFlowing : Array String -> P.Doc cost
+exposingColumnFlowing symbols =
+    P.concat
+        (P.text " exposing ")
+        (flowList 4 symbols)
+
+alignedFlowing : P.Doc cost
+alignedFlowing =
+    P.twoColumns
+    [ { a = P.text "import CodeView",        b = P.empty }
+    , { a = P.text "import DocConstructors", b = exposingColumnFlowing [ "parenList", "flowList" ] }
+    , { a = P.text "import Short",           b = exposingColumnFlowing [ "oneSymbol" ] }
+    , { a = P.text "import PrettyConfig",    b = exposingColumnFlowing [
+        "cf60", "cf80", "guidelines", "guidelines60", "anotherLongSymbol" ] }
+    ]
+
+section_alignedFlowing : Model -> Html Msg
+section_alignedFlowing model =
+    let
+        rendered = when P.prettyFormat cf80 alignedFlowing is
+            Nothing -> "Failed to render"
+            Just prettyPrinted -> prettyPrinted
+    in
+        div [] [
+            p [] [
+                text """
+Here is the same block, but aligning the "exposing" part into columns, and
+having those symbols flow across the line. It uses PrettyExpressive's TwoColumn Doc type
+so the pretty-printer can choose the correct column for "exposing" by itself.
+"""
+
+            ],
+            CodeView.view rendered guidelines "Import statement block, aligned, flowing across"
+
+        ]

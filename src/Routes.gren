@@ -10,6 +10,7 @@ import Model exposing (Model)
 type Route
     = HomeRoute
     | ModuleLineRoute
+    | ImportsRoute
 
 -- Parser for routes
 routes: String -> Parser (Route -> a) a
@@ -21,10 +22,16 @@ routes mountPath =
                 Parser.s "moduleline"
             else
                 Parser.s mountPath </> Parser.s "moduleline"
+        importsRoute =
+            if mountPath == "" then
+                Parser.s "imports"
+            else
+                Parser.s mountPath </> Parser.s "imports"
     in
         Parser.oneOf
             [ Parser.map HomeRoute homeRoute
             , Parser.map ModuleLineRoute moduleLineRoute
+            , Parser.map ImportsRoute importsRoute
             ]
 
 -- Converts URLs to routes
@@ -38,6 +45,7 @@ routeToUrl model route =
         post = when route is
             HomeRoute -> ""
             ModuleLineRoute -> "moduleline"
+            ImportsRoute -> "imports"
 
         slashMountPoint = when model.flags.mountPoint is
             "" -> ""

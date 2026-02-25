@@ -15,6 +15,7 @@ pageToRoute page =
     when page is
         IntroPage -> HomeRoute
         ModuleLinePage -> ModuleLineRoute
+        ImportsPage -> ImportsRoute
 
 update : Msg -> Model -> { model: Model, command: Cmd Msg}
 update msg model =
