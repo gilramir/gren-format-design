@@ -65,7 +65,7 @@ function munge_static_prod() {
     mountpoint='gren-format-design'
     cd "$builddir"
     sed -i -e 's|mountPoint: ""|mountPoint: "'"$mountpoint"'"|' index.html
-    sed -i -e 's|"/static/|"/'"$mountpoint"'/static/|' index.html
+#    sed -i -e 's|"/static/|"/'"$mountpoint"'/static/|' index.html
     cd ..
 }
 
@@ -75,7 +75,7 @@ function munge_static_staging() {
     mountpoint='staging/gren-format-design'
     cd "$builddir"
     sed -i -e 's|mountPoint: ""|mountPoint: "'"$mountpoint"'"|' index.html
-    sed -i -e 's|"/static/|"/'"$mountpoint"'/static/|' index.html
+#    sed -i -e 's|"/static/|"/'"$mountpoint"'/static/|' index.html
     cd ..
 }
 
