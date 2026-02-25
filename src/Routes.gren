@@ -38,6 +38,11 @@ routeToUrl model route =
         post = when route is
             HomeRoute -> ""
             ModuleLineRoute -> "moduleline"
+
+        slashMountPoint = when model.flags.mountPoint is
+            "" -> ""
+            _ -> "/" ++ model.flags.mountPoint
     in
-        model.flags.urlProtoHostPort ++ "/" ++ model.flags.mountPoint ++ post
+
+        model.flags.urlProtoHostPort ++ slashMountPoint ++ "/" ++ post
 
