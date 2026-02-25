@@ -1,7 +1,7 @@
 module Views.IntroPage exposing (view)
 
-import Html exposing (Html, h1, h2, div, p, text, pre)
-import Html.Attributes exposing (class, id)
+import Html exposing (Html, h1, h2, div, p, text, pre, a)
+import Html.Attributes exposing (class, href)
 import Html.Events exposing (onClick)
 import String
 
@@ -53,7 +53,15 @@ view model =
 
         p [] [ text """
 This document discusses the design choices for "gren format".
-"""
+It uses the """,
+            a [href "https://packages.gren-lang.org/package/gilramir/gren-pretty-expressive"]
+                [ text "Pretty Expressive Printer"],
+            text " package. You can view ",
+            a [href "https://github.com/gilramir/gren-format-design"]
+                [ text "the source code for this web-app document" ],
+            text """
+if you would like to see how these examples were made. The Gren code is
+actually using the Pretty Expressive Printer to render this document."""
         ],
 
         p [] [ text """
