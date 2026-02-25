@@ -3,7 +3,6 @@ module Views.ModuleLinePage exposing (view)
 import Html exposing (Html, h1, h2, div, p, text, pre)
 
 import PrettyExpressive as P
-import PrettyExpressive.Debug exposing (debugShowDoc)
 
 import CodeView
 import DocConstructors exposing (listOnePerLine, parenList, flowList)
@@ -60,17 +59,7 @@ Let's look at a module that exposes many symbols. The format that is generally
 used is to show one symbol per line, with one indentation.
 """
             ],
-            CodeView.view rendered guidelines "One Exposed Symbol Per Line",
-
-            p [] [
-                text """
-This is generated from this Doc.
-"""
-            ],
-            pre [] [
-                text (debugShowDoc onePerLine)
-            ]
-
+            CodeView.view rendered guidelines "One Exposed Symbol Per Line"
         ]
 
 
@@ -129,14 +118,7 @@ become too long to fit in 80 columns), it would automatically
 be rendered in a multiline format because the single-line version is too long.
 """
             ],
-            CodeView.view rendered60 guidelines60 "Split into multiple lines",
-
-            p [] [
-                text """
-This is the Doc that produces these two behaviors.
-"""
-            ],
-            pre [] [ text (debugShowDoc allOrNothing) ]
+            CodeView.view rendered60 guidelines60 "Split into multiple lines"
 
         ]
 
@@ -181,13 +163,6 @@ instead of having one symbol per line.
 """
             ],
 
-            CodeView.view rendered80 guidelines "Flowing across multiple lines",
-
-            p [] [
-                text """
-This is the Doc that produces this rendering.
-"""
-            ],
-            pre [] [ text (debugShowDoc flowing) ]
+            CodeView.view rendered80 guidelines "Flowing across multiple lines"
         ]
 
