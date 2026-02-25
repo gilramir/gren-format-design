@@ -1,0 +1,84 @@
+#!/usr/bin/env python3
+
+import os
+import hashlib
+import shutil
+from bs4 import BeautifulSoup
+
+INDEX_FILE = "index.html"
+STATIC_DIR = "static"
+
+def get_md5(file_path):
+    """Calculate MD5 hash of a file."""
+    hash_md5 = hashlib.md5()
+    with open(file_path, "rb") as f:
+        for chunk in iter(lambda: f.read(4096), b""):
+            hash_md5.update(chunk)
+    return hash_md5.hexdigest()
+
+def process_deployment():
+    if not os.path.exists(INDEX_FILE):
+        print(f"Error: {INDEX_FILE} not found in CWD.")
+        return
+
+    # Create a backup of index.html before modifying
+    #shutil.copy2(INDEX_FILE, f"{INDEX_FILE}.bak")
+
+    with open(INDEX_FILE, "r", encoding="utf-8") as f:
+        soup = BeautifulSoup(f, "html.parser")
+
+    # Map tags to the attribute that contains the file path
+    tags_to_check = {
+        "script": "src",
+        "link": "href",
+        "img": "src",
+        "source": "src",
+        "a": "href"
+    }
+
+    modified_count = 0
+
+    for tag_name, attr in tags_to_check.items():
+        for tag in soup.find_all(tag_name, **{attr: True}):
+            original_path = tag[attr]
+
+            # Target only local files in the static directory
+            if original_path.startswith(f"{STATIC_DIR}/") or original_path.startswith(f"./{STATIC_DIR}/"):
+                clean_path = original_path.lstrip("./")
+                full_path = os.path.join(os.getcwd(), clean_path)
+
+                if os.path.exists(full_path):
+                    file_dir = os.path.dirname(full_path)
+                    file_name = os.path.basename(full_path)
+
+                    # Avoid double-hashing (Check if starts with 32 hex chars + dot)
+                    parts = file_name.split('.')
+                    if len(parts) > 1 and len(parts[0]) == 32 and all(c in '0123456789abcdef' for c in parts[0]):
+                        continue
+
+                    file_hash = get_md5(full_path)
+                    new_name = f"{file_hash}.{file_name}"
+                    new_full_path = os.path.join(file_dir, new_name)
+                    
+                    # Rename the physical file
+                    os.rename(full_path, new_full_path)
+                    
+                    # Update the HTML attribute
+                    # Ensure we use forward slashes for web paths regardless of OS
+                    new_rel_dir = os.path.dirname(clean_path).replace("\\", "/")
+                    new_rel_path = f"{new_rel_dir}/{new_name}" if new_rel_dir else new_name
+                    tag[attr] = new_rel_path
+                    
+                    print(f"✅ Hashed: {file_name} -> {new_name}")
+                    modified_count += 1
+
+    if modified_count > 0:
+        with open(INDEX_FILE, "w", encoding="utf-8") as f:
+            f.write(soup.prettify())
+        print(f"\nSuccess! Modified {modified_count} assets and updated {INDEX_FILE}.")
+        #print(f"A backup of the original HTML is at {INDEX_FILE}.bak")
+    else:
+        print("\nNo new assets needed hashing.")
+
+if __name__ == "__main__":
+    process_deployment()

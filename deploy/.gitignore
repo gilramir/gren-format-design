@@ -1,0 +1,7 @@
+venv/
+prod-build/
+prod-install/
+staging-build/
+staging-install/
+deploy-prod.sh
+deploy-staging.sh

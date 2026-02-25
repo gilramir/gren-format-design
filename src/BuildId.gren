@@ -1,4 +1,4 @@
-module Version exposing (..)
+module BuildId exposing (..)
 
 sha = "<sha>"
 timestamp = "<timestamp>"
