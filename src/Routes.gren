@@ -11,6 +11,7 @@ type Route
     = HomeRoute
     | ModuleLineRoute
     | ImportsRoute
+    | FuncDeclRoute
 
 -- Parser for routes
 routes: String -> Parser (Route -> a) a
@@ -27,11 +28,17 @@ routes mountPath =
                 Parser.s "imports"
             else
                 Parser.s mountPath </> Parser.s "imports"
+        funcDeclRoute =
+            if mountPath == "" then
+                Parser.s "functions"
+            else
+                Parser.s mountPath </> Parser.s "functions"
     in
         Parser.oneOf
             [ Parser.map HomeRoute homeRoute
             , Parser.map ModuleLineRoute moduleLineRoute
             , Parser.map ImportsRoute importsRoute
+            , Parser.map FuncDeclRoute funcDeclRoute
             ]
 
 -- Converts URLs to routes
@@ -46,6 +53,7 @@ routeToUrl model route =
             HomeRoute -> ""
             ModuleLineRoute -> "moduleline"
             ImportsRoute -> "imports"
+            FuncDeclRoute -> "functions"
 
         slashMountPoint = when model.flags.mountPoint is
             "" -> ""

@@ -245,3 +245,48 @@ alignedStringColumns rows =
             )
             rows
         )
+
+{- create a function declaration
+
+functionDecl
+    "flowList"
+    [ "Int", "Array String", "P.Doc cost" ]
+    [ "nestIndent", "items" ]
+    (P.text "...")
+
+functionDecl
+    "view"
+    [ "Model", "Html Msg" ]
+    [ "model" ]
+    (P.text "div")
+
+-- types must not be empty!
+
+-}
+functionDecl :
+    String
+    -> Array String
+    -> Array String
+    -> P.Doc cost
+    -> P.Doc cost
+functionDecl name types params body =
+    let
+        -- "name : Type1 -> Type2 -> ReturnType"
+        typeSig =
+            P.text (name ++ " : " ++ String.join " -> " types)
+
+        -- "name param1 param2 ="
+        paramStr =
+            if Array.isEmpty params then
+                ""
+            else
+                " " ++ String.join " " params
+
+        defLine =
+            P.text (name ++ paramStr ++ " =")
+
+        -- body indented 4 spaces, preceded by a mandatory newline
+        indentedBody =
+            P.nest 4 (P.concat P.hardNl body)
+    in
+    P.vcat [ typeSig, P.concat defLine indentedBody ]

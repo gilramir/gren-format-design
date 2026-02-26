@@ -1,0 +1,215 @@
+module Views.FuncDeclPage exposing (view)
+
+import Html exposing (Html, h1, h2, div, p, text, pre)
+
+import PrettyExpressive as P
+import PrettyExpressive.Debug exposing (debugShowDoc)
+
+import CodeView
+import DocConstructors exposing (functionDecl)
+import Msg exposing (Msg(..))
+import Model exposing (Model)
+import PrettyConfig exposing (cf60, cf80, guidelines, guidelines60)
+
+
+view : Model -> Html Msg
+view model =
+    div [] [
+        h1 [] [ text "Function Declarations" ],
+
+        p [] [
+            text """
+Function declarations usually have a line with the types they receive
+and return, and another line which names the variables for the parameters.
+"""
+        ],
+
+        h2 [] [ text "One-line Function Declarations" ],
+        section_oneLine model
+    ]
+
+section_oneLine : Model -> Html Msg
+section_oneLine model =
+    let
+        doc1 = functionDecl "exampleFunc" [ "String", "Int", "Int" ]
+            [ "text", "count" ] (P.text "do_something")
+
+        rendered1 = when P.prettyFormat cf80 doc1 is
+            Nothing -> "Failed to render"
+            Just prettyPrinted -> prettyPrinted
+
+        doc2 = functionDecl "exampleFunc"
+            [ "Array [ String ]", "{ model : Model, command : Cmd }",
+                "Array [ P.Doc cost ]", "Int" ]
+            [ "param1", "{ model = model, command = command }",
+                "param3" ] (P.text "do_something text count")
+
+        rendered2 = when P.prettyFormat cf80 doc2 is
+            Nothing -> "Failed to render"
+            Just prettyPrinted -> prettyPrinted
+    in
+        div [] [
+            p [] [
+                text """
+This is a function declaration that easily fits on two lines,
+with the types on one line, and the variables on the next.
+"""
+            ],
+            CodeView.view rendered1 guidelines "Function declaration",
+
+            p [] [
+                text """
+When the type types have very long names, the first line extends well past the
+80-column limit.
+"""
+            ],
+            CodeView.view rendered2 guidelines "Function declaration, extending beyond the limit"
+
+        ]
+
+{-
+        h2 [] [ text "Non-aligned, One-Per-Line" ],
+        section_nonAlignedOnePer model,
+
+        h2 [] [ text "Non-aligned, Flowing Across" ],
+        section_nonAlignedFlowing model,
+
+        h2 [] [ text "Aligned, Flowing Across" ],
+        section_alignedFlowing model
+    ]
+    -}
+
+{-
+tradImportOnePer : String -> Array String -> P.Doc cost
+tradImportOnePer pkg symbols =
+    let
+        exposingItems = parenList symbols
+
+        exposingList =
+            P.group
+                (P.nest 4
+                    (P.concat P.nl exposingItems)
+                )
+    in
+        if Array.length symbols == 0 then
+                P.text ("import " ++ pkg)
+        else
+            P.concat
+                (P.text ("import " ++ pkg ++ " exposing"))
+                exposingList
+
+
+nonAlignedOnePer : P.Doc cost
+nonAlignedOnePer =
+    P.vcat [
+        tradImportOnePer "CodeView" [],
+        tradImportOnePer "DocConstructors" [ "parenList", "flowList" ],
+        tradImportOnePer "Short" [ "oneSymbol" ],
+        tradImportOnePer "PrettyConfig" [ "cf60", "cf80", "guidelines",
+        "guidelines60", "anotherLongSymbol" ]
+    ]
+
+section_nonAlignedOnePer : Model -> Html Msg
+section_nonAlignedOnePer model =
+    let
+        rendered = when P.prettyFormat cf80 nonAlignedOnePer is
+            Nothing -> "Failed to render"
+            Just prettyPrinted -> prettyPrinted
+    in
+        div [] [
+            p [] [
+                text """
+Here is a non-aligned set of "import" statements, for reference.
+The first import has no list of symbols.
+The second and thirs lines have short lists,
+and the last one has a long list that can't fit on a single line.
+"""
+            ],
+            CodeView.view rendered guidelines "Import statement block, not aligned, one-per-lien"
+
+        ]
+
+
+tradImportFlowing : String -> Array String -> P.Doc cost
+tradImportFlowing pkg symbols =
+    let
+        exposingItems = flowList 4 symbols
+        exposingList = exposingItems
+        {-
+            P.hardNl
+                |> P.concat exposingItems
+                -}
+    in
+        if Array.length symbols == 0 then
+                P.text ("import " ++ pkg)
+        else
+            P.concat
+                (P.text ("import " ++ pkg ++ " exposing "))
+                exposingList
+
+nonAlignedFlowing : P.Doc cost
+nonAlignedFlowing =
+    P.vcat [
+        tradImportFlowing "CodeView" [],
+        tradImportFlowing "DocConstructors" [ "parenList", "flowList" ],
+        tradImportFlowing  "Short" [ "oneSymbol" ],
+        tradImportFlowing "PrettyConfig" [ "cf60", "cf80", "guidelines",
+        "guidelines60", "anotherLongSymbol" ]
+    ]
+
+section_nonAlignedFlowing : Model -> Html Msg
+section_nonAlignedFlowing model =
+    let
+        rendered = when P.prettyFormat cf80 nonAlignedFlowing is
+            Nothing -> "Failed to render"
+            Just prettyPrinted -> prettyPrinted
+    in
+        div [] [
+            p [] [
+                text """
+Here is the same block, but allowing symbols after the first line to flow
+across the line.
+"""
+            ],
+            CodeView.view rendered guidelines "Import statement block, not aligned, flowing across"
+
+        ]
+
+
+exposingColumnFlowing : Array String -> P.Doc cost
+exposingColumnFlowing symbols =
+    P.concat
+        (P.text " exposing ")
+        (flowList 4 symbols)
+
+alignedFlowing : P.Doc cost
+alignedFlowing =
+    P.twoColumns
+    [ { a = P.text "import CodeView",        b = P.empty }
+    , { a = P.text "import DocConstructors", b = exposingColumnFlowing [ "parenList", "flowList" ] }
+    , { a = P.text "import Short",           b = exposingColumnFlowing [ "oneSymbol" ] }
+    , { a = P.text "import PrettyConfig",    b = exposingColumnFlowing [
+        "cf60", "cf80", "guidelines", "guidelines60", "anotherLongSymbol" ] }
+    ]
+
+section_alignedFlowing : Model -> Html Msg
+section_alignedFlowing model =
+    let
+        rendered = when P.prettyFormat cf80 alignedFlowing is
+            Nothing -> "Failed to render"
+            Just prettyPrinted -> prettyPrinted
+    in
+        div [] [
+            p [] [
+                text """
+Here is the same block, but aligning the "exposing" part into columns, and
+having those symbols flow across the line. It uses PrettyExpressive's TwoColumn Doc type
+so the pretty-printer can choose the correct column for "exposing" by itself.
+"""
+
+            ],
+            CodeView.view rendered guidelines "Import statement block, aligned, flowing across"
+
+        ]
+
+-}
