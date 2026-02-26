@@ -50,7 +50,7 @@ tradImportOnePer pkg symbols =
                 P.text ("import " ++ pkg)
         else
             P.concat
-                (P.text ("import " ++ pkg ++ " exposing "))
+                (P.text ("import " ++ pkg ++ " exposing"))
                 exposingList
 
 
