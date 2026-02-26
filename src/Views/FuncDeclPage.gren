@@ -3,10 +3,9 @@ module Views.FuncDeclPage exposing (view)
 import Html exposing (Html, h1, h2, div, p, text, pre)
 
 import PrettyExpressive as P
-import PrettyExpressive.Debug exposing (debugShowDoc)
 
 import CodeView
-import DocConstructors exposing (functionDecl)
+import DocConstructors exposing (..)
 import Msg exposing (Msg(..))
 import Model exposing (Model)
 import PrettyConfig exposing (cf60, cf80, guidelines, guidelines60)
@@ -25,7 +24,16 @@ and return, and another line which names the variables for the parameters.
         ],
 
         h2 [] [ text "One-line Function Declarations" ],
-        section_oneLine model
+        section_oneLine model,
+
+        h2 [] [ text "Multi-line Function Declarations, Flowing" ],
+        section_multiLine_flowing model,
+
+        h2 [] [ text "Multi-line Function Declarations, One Type Per Line" ],
+        section_multiLine_onePer_type model,
+
+        h2 [] [ text "Multi-line Function Declarations, One Type/Variable Per Line" ],
+        section_multiLine_onePer_tv model
     ]
 
 section_oneLine : Model -> Html Msg
@@ -42,7 +50,7 @@ section_oneLine model =
             [ "Array [ String ]", "{ model : Model, command : Cmd }",
                 "Array [ P.Doc cost ]", "Int" ]
             [ "param1", "{ model = model, command = command }",
-                "param3" ] (P.text "do_something text count")
+                "param3_has_a_very_long_name" ] (P.text "do_something text count")
 
         rendered2 = when P.prettyFormat cf80 doc2 is
             Nothing -> "Failed to render"
@@ -67,149 +75,76 @@ When the type types have very long names, the first line extends well past the
 
         ]
 
-{-
-        h2 [] [ text "Non-aligned, One-Per-Line" ],
-        section_nonAlignedOnePer model,
 
-        h2 [] [ text "Non-aligned, Flowing Across" ],
-        section_nonAlignedFlowing model,
 
-        h2 [] [ text "Aligned, Flowing Across" ],
-        section_alignedFlowing model
-    ]
-    -}
-
-{-
-tradImportOnePer : String -> Array String -> P.Doc cost
-tradImportOnePer pkg symbols =
+section_multiLine_flowing : Model -> Html Msg
+section_multiLine_flowing model =
     let
-        exposingItems = parenList symbols
+        doc = functionDecl2 "exampleFunc"
+            [ "Array [ String ]", "{ model : Model, command : Cmd }",
+                "Array [ P.Doc cost ]", "Int" ]
+            [ "param1", "{ model = model, command = command }",
+                "param3_has_a_very_long_name" ] (P.text "do_something text count")
 
-        exposingList =
-            P.group
-                (P.nest 4
-                    (P.concat P.nl exposingItems)
-                )
-    in
-        if Array.length symbols == 0 then
-                P.text ("import " ++ pkg)
-        else
-            P.concat
-                (P.text ("import " ++ pkg ++ " exposing"))
-                exposingList
-
-
-nonAlignedOnePer : P.Doc cost
-nonAlignedOnePer =
-    P.vcat [
-        tradImportOnePer "CodeView" [],
-        tradImportOnePer "DocConstructors" [ "parenList", "flowList" ],
-        tradImportOnePer "Short" [ "oneSymbol" ],
-        tradImportOnePer "PrettyConfig" [ "cf60", "cf80", "guidelines",
-        "guidelines60", "anotherLongSymbol" ]
-    ]
-
-section_nonAlignedOnePer : Model -> Html Msg
-section_nonAlignedOnePer model =
-    let
-        rendered = when P.prettyFormat cf80 nonAlignedOnePer is
+        rendered = when P.prettyFormat cf80 doc is
             Nothing -> "Failed to render"
             Just prettyPrinted -> prettyPrinted
     in
         div [] [
             p [] [
                 text """
-Here is a non-aligned set of "import" statements, for reference.
-The first import has no list of symbols.
-The second and thirs lines have short lists,
-and the last one has a long list that can't fit on a single line.
+Another way to show those overflows is to go to subsequent lines, where
+the overflow flows across the line.
 """
             ],
-            CodeView.view rendered guidelines "Import statement block, not aligned, one-per-lien"
+            CodeView.view rendered guidelines "Function declaration, multi-line, flowing"
 
         ]
 
-
-tradImportFlowing : String -> Array String -> P.Doc cost
-tradImportFlowing pkg symbols =
+section_multiLine_onePer_type : Model -> Html Msg
+section_multiLine_onePer_type model =
     let
-        exposingItems = flowList 4 symbols
-        exposingList = exposingItems
-        {-
-            P.hardNl
-                |> P.concat exposingItems
-                -}
-    in
-        if Array.length symbols == 0 then
-                P.text ("import " ++ pkg)
-        else
-            P.concat
-                (P.text ("import " ++ pkg ++ " exposing "))
-                exposingList
+        doc = functionDecl3 "exampleFunc"
+            [ "Array [ String ]", "{ model : Model, command : Cmd }",
+                "Array [ P.Doc cost ]", "Int" ]
+            [ "param1", "{ model = model, command = command }",
+                "param3_has_a_very_long_name" ] (P.text "do_something text count")
 
-nonAlignedFlowing : P.Doc cost
-nonAlignedFlowing =
-    P.vcat [
-        tradImportFlowing "CodeView" [],
-        tradImportFlowing "DocConstructors" [ "parenList", "flowList" ],
-        tradImportFlowing  "Short" [ "oneSymbol" ],
-        tradImportFlowing "PrettyConfig" [ "cf60", "cf80", "guidelines",
-        "guidelines60", "anotherLongSymbol" ]
-    ]
-
-section_nonAlignedFlowing : Model -> Html Msg
-section_nonAlignedFlowing model =
-    let
-        rendered = when P.prettyFormat cf80 nonAlignedFlowing is
+        rendered = when P.prettyFormat cf80 doc is
             Nothing -> "Failed to render"
             Just prettyPrinted -> prettyPrinted
     in
         div [] [
             p [] [
                 text """
-Here is the same block, but allowing symbols after the first line to flow
-across the line.
+Or, the types can be printed on per line if they overflow, but, not the
+variable names.
 """
             ],
-            CodeView.view rendered guidelines "Import statement block, not aligned, flowing across"
+            CodeView.view rendered guidelines "Function declaration, types can be on individual lines"
 
         ]
 
 
-exposingColumnFlowing : Array String -> P.Doc cost
-exposingColumnFlowing symbols =
-    P.concat
-        (P.text " exposing ")
-        (flowList 4 symbols)
-
-alignedFlowing : P.Doc cost
-alignedFlowing =
-    P.twoColumns
-    [ { a = P.text "import CodeView",        b = P.empty }
-    , { a = P.text "import DocConstructors", b = exposingColumnFlowing [ "parenList", "flowList" ] }
-    , { a = P.text "import Short",           b = exposingColumnFlowing [ "oneSymbol" ] }
-    , { a = P.text "import PrettyConfig",    b = exposingColumnFlowing [
-        "cf60", "cf80", "guidelines", "guidelines60", "anotherLongSymbol" ] }
-    ]
-
-section_alignedFlowing : Model -> Html Msg
-section_alignedFlowing model =
+section_multiLine_onePer_tv : Model -> Html Msg
+section_multiLine_onePer_tv model =
     let
-        rendered = when P.prettyFormat cf80 alignedFlowing is
+        doc = functionDecl4 "exampleFunc"
+            [ "Array [ String ]", "{ model : Model, command : Cmd }",
+                "Array [ P.Doc cost ]", "Int" ]
+            [ "param1", "{ model = model, command = command }",
+                "param3_has_a_very_long_name" ] (P.text "do_something text count")
+
+        rendered = when P.prettyFormat cf80 doc is
             Nothing -> "Failed to render"
             Just prettyPrinted -> prettyPrinted
     in
         div [] [
             p [] [
                 text """
-Here is the same block, but aligning the "exposing" part into columns, and
-having those symbols flow across the line. It uses PrettyExpressive's TwoColumn Doc type
-so the pretty-printer can choose the correct column for "exposing" by itself.
+Or, the types and variables can be printed on per line if they overflow.
 """
-
             ],
-            CodeView.view rendered guidelines "Import statement block, aligned, flowing across"
+            CodeView.view rendered guidelines "Function declaration, types and variables can be on individual lines"
 
         ]
-
--}

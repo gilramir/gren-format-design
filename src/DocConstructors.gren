@@ -290,3 +290,205 @@ functionDecl name types params body =
             P.nest 4 (P.concat P.hardNl body)
     in
     P.vcat [ typeSig, P.concat defLine indentedBody ]
+
+
+{-
+The four possible renderings, from widest to narrowest:
+
+-- Everything fits:
+flowList : Int -> Array String -> P.Doc cost
+flowList nestIndent items =
+    body
+
+-- Types overflow, params fit:
+flowList : Int
+    -> Array String
+    -> P.Doc cost
+flowList nestIndent items =
+    body
+
+-- Both overflow:
+flowList : Int
+    -> Array String
+    -> P.Doc cost
+flowList
+    nestIndent
+    items =
+    body
+-}
+
+functionDecl2 :
+    String
+    -> Array String
+    -> Array String
+    -> P.Doc cost
+    -> P.Doc cost
+functionDecl2 name types params body =
+    let
+        -- "name : T1 -> T2 -> T3"
+        -- Flow: as many types as fit per line, continuation lines indented 4.
+        -- Broken example:
+        --   flowList : Int
+        --       -> Array String
+        --       -> P.Doc cost
+        typeSig =
+            when Array.popFirst types is
+                Nothing ->
+                    P.empty
+                Just { first, rest } ->
+                    let
+                        firstDoc = P.text (name ++ " : " ++ first)
+                        restDocs = Array.map (\t -> P.text ("-> " ++ t)) rest
+                        allDocs  = [ firstDoc ] ++ restDocs
+                    in
+                    P.nest 4
+                        (P.foldDoc
+                            (\a b -> P.concat a (P.group (P.concat P.nl b)))
+                            allDocs
+                        )
+
+        -- "name param1 param2 ="
+        -- Flow: as many params as fit per line, continuation lines indented 4.
+        -- Broken example:
+        --   functionDecl name
+        --       types params =
+        defLine =
+            when Array.popLast params is
+                Nothing ->
+                    -- No params: "name ="
+                    P.text (name ++ " =")
+                Just { initial, last } ->
+                    let
+                        -- "last =" is baked into the final token so "=" always
+                        -- stays with the last param, never stranded on its own line.
+                        firstDoc   = P.text name
+                        initialDocs = Array.map P.text initial
+                        lastDoc    = P.text (last ++ " =")
+                        allDocs    = [ firstDoc ] ++ initialDocs ++ [ lastDoc ]
+                    in
+                    P.nest 4
+                        (P.foldDoc
+                            (\a b -> P.concat a (P.group (P.concat P.nl b)))
+                            allDocs
+                        )
+
+        indentedBody =
+            P.nest 4 (P.concat P.hardNl body)
+    in
+    P.vcat [ typeSig, P.concat defLine indentedBody ]
+
+
+
+{- all or nothing, for types -}
+functionDecl3 :
+    String
+    -> Array String
+    -> Array String
+    -> P.Doc cost
+    -> P.Doc cost
+functionDecl3 name types params body =
+    let
+        -- "name : T1 -> T2 -> T3"
+        -- All-or-nothing: either all on one line, or each type on its own line.
+        -- Broken example:
+        --   flowList : Int
+        --       -> Array String
+        --       -> P.Doc cost
+        typeSig =
+            when Array.popFirst types is
+                Nothing ->
+                    P.empty
+                Just { first, rest } ->
+                    let
+                        firstDoc = P.text (name ++ " : " ++ first)
+                        restDocs = Array.map (\t -> P.text ("-> " ++ t)) rest
+                        allDocs  = [ firstDoc ] ++ restDocs
+                    in
+                    P.nest 4
+                        (P.group
+                            (P.foldDoc
+                                (\a b -> P.concat a (P.concat P.nl b))
+                                allDocs
+                            )
+                        )
+
+        -- "name param1 param2 ="
+        -- Flow: as many params as fit per line, continuation lines indented 4.
+        -- Broken example:
+        --   functionDecl name
+        --       types params =
+        defLine =
+            when Array.popLast params is
+                Nothing ->
+                    P.text (name ++ " =")
+                Just { initial, last } ->
+                    let
+                        -- "last =" is baked into the final token so "=" always
+                        -- stays with the last param, never stranded on its own line.
+                        firstDoc    = P.text name
+                        initialDocs = Array.map P.text initial
+                        lastDoc     = P.text (last ++ " =")
+                        allDocs     = [ firstDoc ] ++ initialDocs ++ [ lastDoc ]
+                    in
+                    P.nest 4
+                        (P.foldDoc
+                            (\a b -> P.concat a (P.group (P.concat P.nl b)))
+                            allDocs
+                        )
+
+        indentedBody =
+            P.nest 4 (P.concat P.hardNl body)
+    in
+    P.vcat [ typeSig, P.concat defLine indentedBody ]
+
+{- all or nothing, both types and variables -}
+functionDecl4 :
+    String
+    -> Array String
+    -> Array String
+    -> P.Doc cost
+    -> P.Doc cost
+functionDecl4 name types params body =
+    let
+        typeSig =
+            when Array.popFirst types is
+                Nothing ->
+                    P.empty
+                Just { first, rest } ->
+                    let
+                        firstDoc = P.text (name ++ " : " ++ first)
+                        restDocs = Array.map (\t -> P.text ("-> " ++ t)) rest
+                        allDocs  = [ firstDoc ] ++ restDocs
+                    in
+                    P.nest 4
+                        (P.group
+                            (P.foldDoc
+                                (\a b -> P.concat a (P.concat P.nl b))
+                                allDocs
+                            )
+                        )
+
+        defLine =
+            when Array.popLast params is
+                Nothing ->
+                    P.text (name ++ " =")
+                Just { initial, last } ->
+                    let
+                        firstDoc    = P.text name
+                        initialDocs = Array.map P.text initial
+                        lastDoc     = P.text (last ++ " =")
+                        allDocs     = [ firstDoc ] ++ initialDocs ++ [ lastDoc ]
+                    in
+                    P.nest 4
+                        (P.group
+                            (P.foldDoc
+                                (\a b -> P.concat a (P.concat P.nl b))
+                                allDocs
+                            )
+                        )
+
+        indentedBody =
+            P.nest 4 (P.concat P.hardNl body)
+    in
+    P.vcat [ typeSig, P.concat defLine indentedBody ]
+
