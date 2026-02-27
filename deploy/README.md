@@ -1,0 +1,11 @@
+# The Design of "gren format"
+
+This web app is the design document for the upcoming "gren format" tool,
+the pretty-printer for [Gren](https://gren-lang.org/).
+
+It is a discussion of rendering choices for different parts of the language.
+
+It is also an exploration of how to use the
+[Pretty Expressive Printer](https://packages.gren-lang.org/package/gilramir/gren-pretty-expressive)
+package to render Gren syntax.
+
