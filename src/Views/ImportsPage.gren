@@ -35,7 +35,10 @@ there is an opportunity to align the "exposing" part in a column.
         section_alignedFlowing model,
 
         h2 [] [ text "Symbols Aligned, Flowing Across" ],
-        section_alignedFlowing2 model
+        section_alignedFlowing2 model,
+
+        h2 [] [ text "Symbols Aligned, Columnar-Flowing" ],
+        section_alignedColumnar model
     ]
 
 tradImportOnePer : String -> Array String -> P.Doc cost
@@ -200,4 +203,36 @@ list of symbols should start the new column.
 
             ],
             CodeView.view rendered guidelines80 "Import statement block, symbols aligned, flowing across"
+        ]
+
+symbolColumnar : Array String -> P.Doc cost
+symbolColumnar symbols =
+    P.align (flowList 0 symbols)
+
+alignedColumnar : P.Doc cost
+alignedColumnar =
+    P.twoColumns
+    [ { a = P.text "import CodeView", b = P.empty }
+    , { a = P.text "import DocConstructors exposing ", b = symbolColumnar [ "parenList", "flowList" ] }
+    , { a = P.text "import Short exposing ",           b = symbolColumnar [ "oneSymbol" ] }
+    , { a = P.text "import PrettyConfig exposing ",    b = symbolColumnar [
+        "cf60", "cf80", "guidelines", "guidelines60", "anotherLongSymbol" ] }
+    ]
+
+section_alignedColumnar : Model -> Html Msg
+section_alignedColumnar model =
+    let
+        rendered = when P.prettyFormat cf80 alignedColumnar is
+            Nothing -> "Failed to render"
+            Just prettyPrinted -> prettyPrinted
+    in
+        div [] [
+            p [] [
+                text """
+Additionally, when wrapping the list of symbols to the next line, we could
+flow them across the column instead of the entire line.
+"""
+
+            ],
+            CodeView.view rendered guidelines80 "Import statement block, symbols aligned, columnar-flowing"
         ]
