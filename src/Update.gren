@@ -7,8 +7,7 @@ import Url exposing (Url)
 import Model exposing (..)
 import Msg exposing (Msg(..))
 import Pages exposing (Page(..))
-import RouteHandler exposing (setNewPage)
-import Routes exposing (Route(..), routeToUrl)
+import Routes exposing (Route(..), routeToUrl, setNewPage)
 
 pageToRoute : Page -> Route
 pageToRoute page =
