@@ -16,17 +16,31 @@ type Route
     | FuncDeclRoute
     | IfExpressionRoute
 
+routePath : Route -> String
+routePath route =
+    when route is
+        HomeRoute -> ""
+        ModuleLineRoute -> "moduleline"
+        ImportsRoute -> "imports"
+        FuncDeclRoute -> "functions"
+        IfExpressionRoute -> "if-expressions"
+
+routePage : Route -> Page
+routePage route =
+    when route is
+        HomeRoute -> IntroPage
+        ModuleLineRoute -> ModuleLinePage
+        ImportsRoute -> ImportsPage
+        FuncDeclRoute -> FuncDeclPage
+        IfExpressionRoute -> IfExpressionPage
+
 -- Update the model based on the route
 setNewPage : Maybe Route -> Model -> { model: Model, command: Cmd Msg }
 setNewPage maybeRoute model =
     let
         nextPage = 
             when maybeRoute is
-                Just HomeRoute -> IntroPage
-                Just ModuleLineRoute -> ModuleLinePage
-                Just ImportsRoute -> ImportsPage
-                Just FuncDeclRoute -> FuncDeclPage
-                Just IfExpressionRoute -> IfExpressionPage
+                Just route -> routePage route
                 -- Not a valid URL. Go Home.
                 Nothing -> IntroPage
     in
@@ -36,15 +50,6 @@ setNewPage maybeRoute model =
         }
     , command = Cmd.none
     }
-
-routePath : Route -> String
-routePath route =
-    when route is
-        HomeRoute -> ""
-        ModuleLineRoute -> "moduleline"
-        ImportsRoute -> "imports"
-        FuncDeclRoute -> "functions"
-        IfExpressionRoute -> "if-expressions"
 
 mkParser: String -> Route -> Parser (Route -> a) a
 mkParser mountPath route =
