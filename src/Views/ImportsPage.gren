@@ -32,7 +32,10 @@ there is an opportunity to align the "exposing" part in a column.
         section_nonAlignedFlowing model,
 
         h2 [] [ text "Aligned, Flowing Across" ],
-        section_alignedFlowing model
+        section_alignedFlowing model,
+
+        h2 [] [ text "Symbols Aligned, Flowing Across" ],
+        section_alignedFlowing2 model
     ]
 
 tradImportOnePer : String -> Array String -> P.Doc cost
@@ -165,4 +168,36 @@ so the pretty-printer can choose the correct column for "exposing" by itself.
             ],
             CodeView.view rendered guidelines80 "Import statement block, aligned, flowing across"
 
+        ]
+
+symbolColumnFlowing : Array String -> P.Doc cost
+symbolColumnFlowing symbols =
+    (flowList 4 symbols)
+
+alignedFlowing2 : P.Doc cost
+alignedFlowing2 =
+    P.twoColumns
+    [ { a = P.text "import CodeView", b = P.empty }
+    , { a = P.text "import DocConstructors exposing ", b = symbolColumnFlowing [ "parenList", "flowList" ] }
+    , { a = P.text "import Short exposing ",           b = symbolColumnFlowing [ "oneSymbol" ] }
+    , { a = P.text "import PrettyConfig exposing ",    b = symbolColumnFlowing [
+        "cf60", "cf80", "guidelines", "guidelines60", "anotherLongSymbol" ] }
+    ]
+
+section_alignedFlowing2 : Model -> Html Msg
+section_alignedFlowing2 model =
+    let
+        rendered = when P.prettyFormat cf80 alignedFlowing2 is
+            Nothing -> "Failed to render"
+            Just prettyPrinted -> prettyPrinted
+    in
+        div [] [
+            p [] [
+                text """
+Or, maybe the "exposing" should be with the "import" and package name, and the
+list of symbols should start the new column.
+"""
+
+            ],
+            CodeView.view rendered guidelines80 "Import statement block, symbols aligned, flowing across"
         ]
