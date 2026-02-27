@@ -14,7 +14,6 @@ type Route
     | FuncDeclRoute
     | IfStatementRoute
 
-
 routePath : Route -> String
 routePath route =
     when route is
@@ -24,31 +23,55 @@ routePath route =
         FuncDeclRoute -> "functions"
         IfStatementRoute -> "if-statement"
 
-mkParserMap1 : String -> Route -> Parser (Route -> a) a
-mkParserMap1 mountPath route =
+mkParser: String -> Route -> Parser (Route -> a) a
+mkParser mountPath route =
     let
-        p = 
-            if mountPath == "" then
-                Parser.s (routePath route)
-            else
-                Parser.s mountPath </> Parser.s (routePath route)
+        path = (mountPath ++ "/" ++ (routePath route))
     in
-    Parser.map route p
+    Parser.map route (buildRouteParser path)
+
+buildRouteParser : String -> Parser a a
+buildRouteParser path =
+    path
+        |> String.split "/"
+        |> Array.keepIf (String.isEmpty >> not)  -- Remove empty segments
+        |> runParsers
 
 
+runParsers : Array String -> Parser a a
+runParsers parsers =
+    when Array.popFirst parsers is
+        -- 0 entries
+        Nothing -> 
+            Parser.top
+
+        Just { first = first, rest = afterFirst } ->
+            when Array.popFirst afterFirst is
+                -- 1 entry
+                Nothing ->
+                    Parser.s first
+
+                -- More than 1 entry
+                Just { first = second, rest = afterSecond } ->
+                    when Array.popFirst afterSecond is
+                        -- Only 2
+                        Nothing ->
+                            Parser.s first </> Parser.s second
+
+                        -- More than 2
+                        Just _ ->
+                            Parser.s first </> runParsers afterFirst
+                            
 -- Parser for routes
 routes: String -> Parser (Route -> a) a
 routes mountPath =
-    let
-        homeRoute = if mountPath == "" then Parser.top else (Parser.s mountPath)
-    in
-        Parser.oneOf
-            [ Parser.map HomeRoute homeRoute
-            , mkParserMap1 mountPath ModuleLineRoute 
-            , mkParserMap1 mountPath ImportsRoute 
-            , mkParserMap1 mountPath FuncDeclRoute 
-            , mkParserMap1 mountPath IfStatementRoute 
-            ]
+    Parser.oneOf
+        [ mkParser mountPath HomeRoute
+        , mkParser mountPath ModuleLineRoute
+        , mkParser mountPath ImportsRoute
+        , mkParser mountPath FuncDeclRoute
+        , mkParser mountPath IfStatementRoute
+        ]
 
 -- Converts URLs to routes
 match: String -> Url -> Maybe Route
@@ -59,7 +82,6 @@ routeToUrl: Model -> Route -> String
 routeToUrl model route =
     let
         post = routePath route
-
         slashMountPoint = when model.flags.mountPoint is
             "" -> ""
             _ -> "/" ++ model.flags.mountPoint

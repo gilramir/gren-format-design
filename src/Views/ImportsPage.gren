@@ -80,7 +80,7 @@ The second and thirs lines have short lists,
 and the last one has a long list that can't fit on a single line.
 """
             ],
-            CodeView.view rendered guidelines80 "Import statement block, not aligned, one-per-lien"
+            CodeView.view rendered guidelines80 "Import statement block, not aligned, one-per-line"
 
         ]
 

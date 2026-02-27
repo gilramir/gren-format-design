@@ -45,8 +45,12 @@ END
 function build_fe() {
     builddir="$1"
     cd "$builddir"
-    make prod
-    mv static/js/main.prod.js static/js/main.js
+    if [ "$buildtype" = "staging" ] ; then
+        make dev
+    else
+        make prod
+        mv static/js/main.prod.js static/js/main.js
+    fi
     cd ..
 }
 
@@ -116,7 +120,7 @@ installdir="$buildtype-install"
 setup_venv
 prep "$builddir" "$installdir"
 record_build_id "$builddir"
-build_fe "$builddir"
+build_fe "$builddir" "$buildtype"
 munge_static "$builddir"
 munge_static_"$buildtype" "$builddir"
 install_files "$builddir" "$installdir"
