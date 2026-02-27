@@ -1,0 +1,121 @@
+module Views.IfStatementPage exposing (view)
+
+import Html exposing (Html, h1, h2, div, p, text, pre)
+
+import PrettyExpressive as P
+
+import CodeView
+import DocConstructors exposing (..)
+import Msg exposing (Msg(..))
+import Model exposing (Model)
+import PrettyConfig exposing (..)
+
+
+view : Model -> Html Msg
+view model =
+    div [] [
+        h1 [] [ text "If Statements" ],
+
+        p [] [
+            text """
+If statements have a predicate, a true body, and a false body.
+"""
+        ],
+
+        h2 [] [ text "One-Liner" ],
+        section_oneliner model,
+
+        h2 [] [ text "Multi-line, Indented" ],
+        section_ml_trad model,
+
+        h2 [] [ text "Multi-line, Aligned" ],
+        section_ml_aligned model
+
+    ]
+
+function : P.Doc cost -> P.Doc cost
+function body =
+    functionDecl "exampleFunc" [ "Int", "String" ]
+            [ "val" ] body
+
+section_oneliner : Model -> Html Msg
+section_oneliner model =
+    let
+        body = ifThenElse 4
+            (P.text "val < 50")
+            (P.text "\"yes\"")
+            (P.text "\"no\"")
+        doc = function body
+
+        rendered = when P.prettyFormat cf80 doc is
+            Nothing -> "Failed to render"
+            Just prettyPrinted -> prettyPrinted
+
+    in
+        div [] [
+            p [] [
+                text """
+If the if/then/else statement is short enough to fit on the line, we could
+imagine rendering it just like that:
+This is a function declaration that easily fits on two lines,
+with the types on one line, and the variables on the next.
+"""
+            ],
+            CodeView.view rendered guidelines80 "One-line if-statement"
+        ]
+
+
+section_ml_trad : Model -> Html Msg
+section_ml_trad model =
+    let
+        body = ifThenElseMultiline 4
+            (P.text "val < 50")
+            (P.text "\"yes\"")
+            (P.text "\"no\"")
+        doc = function body
+
+        rendered = when P.prettyFormat cf80 doc is
+            Nothing -> "Failed to render"
+            Just prettyPrinted -> prettyPrinted
+
+    in
+        div [] [
+            p [] [
+                text """
+If the statement were longer than one line, we have to break it up into
+a multiline version. We can go with the traditional rendering, which has
+the "if" and "then" on the same line, and the true/false bodies indented.
+We could also do this even for short statements, instead of the one-line
+version.
+"""
+            ],
+            CodeView.view rendered guidelines80 "Multi-line if-statement, indented"
+        ]
+
+
+section_ml_aligned : Model -> Html Msg
+section_ml_aligned model =
+    let
+        body = ifThenElseKeywordsOnNewLines 4
+            (P.text "val < 50")
+            (P.text "\"yes\"")
+            (P.text "\"no\"")
+        doc = function body
+
+        rendered = when P.prettyFormat cf80 doc is
+            Nothing -> "Failed to render"
+            Just prettyPrinted -> prettyPrinted
+
+    in
+        div [] [
+            p [] [
+                text """
+There is possibly another style for long if statements. It would still
+be multiline, but the "then" is on a differnet line from the "if".
+The "if", "then", and "else" are on separate lines, aligned at the same
+column. If their bodies are multi-line, the lines after their first line
+would be indented.
+"""
+            ],
+            CodeView.view rendered guidelines80 "Multi-line if-statement, aligned"
+        ]

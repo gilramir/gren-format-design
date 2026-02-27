@@ -15,6 +15,7 @@ setNewPage maybeRoute model =
                 Just ModuleLineRoute -> ModuleLinePage
                 Just ImportsRoute -> ImportsPage
                 Just FuncDeclRoute -> FuncDeclPage
+                Just IfStatementRoute -> IfStatementPage
                 -- Not a valid URL. Go Home.
                 Nothing -> IntroPage
     in

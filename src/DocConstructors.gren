@@ -492,3 +492,69 @@ functionDecl4 name types params body =
     in
     P.vcat [ typeSig, P.concat defLine indentedBody ]
 
+
+{-
+group won't work here because the two layouts have genuinely different
+structure — not just collapsed vs expanded newlines. So this needs
+an explicit choice with both forms written out. flatten is applied to
+all three sub-docs in the flat branch so that any newlines inside them
+are suppressed:
+
+The flatten calls in flatForm do two jobs at once: they produce the
+correctly-spaced single-line rendering, and they act as a guard —
+if any sub-doc contains a hardNl, flatten turns it into failDoc, which
+propagates through concat_array and eliminates the entire flat branch
+from the choice. The broken form is then the only option, which is
+exactly right: a predicate or branch that insists on newlines should
+never be forced onto one line.
+-}
+
+ifThenElse : Int -> P.Doc cost -> P.Doc cost -> P.Doc cost -> P.Doc cost
+ifThenElse indent predicate ifTrue ifFalse =
+    P.choice
+        (P.concat_array
+            [ P.text "if "
+            , P.flatten predicate
+            , P.text " then "
+            , P.flatten ifTrue
+            , P.text " else "
+            , P.flatten ifFalse
+            ])
+        (ifThenElseMultiline indent predicate ifTrue ifFalse)
+
+{-
+This is just the brokenForm from ifThenElse extracted into its own
+function. If you find yourself repeating the two together often, you
+could also refactor ifThenElse to call this:
+-}
+
+ifThenElseMultiline : Int -> P.Doc cost -> P.Doc cost -> P.Doc cost -> P.Doc cost
+ifThenElseMultiline indent predicate ifTrue ifFalse =
+    P.concat_array
+        [ P.text "if "
+        , predicate
+        , P.text " then"
+        , P.nest indent (P.concat P.hardNl ifTrue)
+        , P.hardNl
+        , P.text "else"
+        , P.nest indent (P.concat P.hardNl ifFalse)
+        ]
+
+{-
+nest indent wraps each body so that any newlines inside ifTrue or
+ifFalse indent to indent spaces — but the first token of each body
+sits directly after "then " or "else " on the same line, since nest only
+affects newlines, not the current column position.
+-}
+ifThenElseKeywordsOnNewLines : Int -> P.Doc cost -> P.Doc cost -> P.Doc cost -> P.Doc cost
+ifThenElseKeywordsOnNewLines indent predicate ifTrue ifFalse =
+    P.concat_array
+        [ P.text "if "
+        , predicate
+        , P.hardNl
+        , P.text "then "
+        , P.nest indent ifTrue
+        , P.hardNl
+        , P.text "else "
+        , P.nest indent ifFalse
+        ]

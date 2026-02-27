@@ -5,13 +5,16 @@ type Page
     | ModuleLinePage
     | ImportsPage
     | FuncDeclPage
+    | IfStatementPage
 
 
 -- The order matters; it's how the table-of-contents sidebard
 -- is rendered
 allPages : Array Page
 allPages =
-    [ IntroPage, ModuleLinePage, ImportsPage, FuncDeclPage ]
+    [ IntroPage, ModuleLinePage, ImportsPage, FuncDeclPage,
+      IfStatementPage
+    ]
 
 pageTitle : Page -> String
 pageTitle page =
@@ -20,3 +23,4 @@ pageTitle page =
         ModuleLinePage -> "The Module Line"
         ImportsPage -> "Imports"
         FuncDeclPage -> "Function Declarations"
+        IfStatementPage -> "If Statements"

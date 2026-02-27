@@ -12,33 +12,42 @@ type Route
     | ModuleLineRoute
     | ImportsRoute
     | FuncDeclRoute
+    | IfStatementRoute
+
+
+routePath : Route -> String
+routePath route =
+    when route is
+        HomeRoute -> ""
+        ModuleLineRoute -> "moduleline"
+        ImportsRoute -> "imports"
+        FuncDeclRoute -> "functions"
+        IfStatementRoute -> "if-statement"
+
+mkParserMap1 : String -> Route -> Parser (Route -> a) a
+mkParserMap1 mountPath route =
+    let
+        p = 
+            if mountPath == "" then
+                Parser.s (routePath route)
+            else
+                Parser.s mountPath </> Parser.s (routePath route)
+    in
+    Parser.map route p
+
 
 -- Parser for routes
 routes: String -> Parser (Route -> a) a
 routes mountPath =
     let
         homeRoute = if mountPath == "" then Parser.top else (Parser.s mountPath)
-        moduleLineRoute =
-            if mountPath == "" then
-                Parser.s "moduleline"
-            else
-                Parser.s mountPath </> Parser.s "moduleline"
-        importsRoute =
-            if mountPath == "" then
-                Parser.s "imports"
-            else
-                Parser.s mountPath </> Parser.s "imports"
-        funcDeclRoute =
-            if mountPath == "" then
-                Parser.s "functions"
-            else
-                Parser.s mountPath </> Parser.s "functions"
     in
         Parser.oneOf
             [ Parser.map HomeRoute homeRoute
-            , Parser.map ModuleLineRoute moduleLineRoute
-            , Parser.map ImportsRoute importsRoute
-            , Parser.map FuncDeclRoute funcDeclRoute
+            , mkParserMap1 mountPath ModuleLineRoute 
+            , mkParserMap1 mountPath ImportsRoute 
+            , mkParserMap1 mountPath FuncDeclRoute 
+            , mkParserMap1 mountPath IfStatementRoute 
             ]
 
 -- Converts URLs to routes
@@ -49,11 +58,7 @@ match basePath url =
 routeToUrl: Model -> Route -> String
 routeToUrl model route =
     let
-        post = when route is
-            HomeRoute -> ""
-            ModuleLineRoute -> "moduleline"
-            ImportsRoute -> "imports"
-            FuncDeclRoute -> "functions"
+        post = routePath route
 
         slashMountPoint = when model.flags.mountPoint is
             "" -> ""
