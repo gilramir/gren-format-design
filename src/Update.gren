@@ -19,6 +19,7 @@ pageToRoute page =
         ImportsPage -> ImportsRoute
         FuncDeclPage -> FuncDeclRoute
         IfExpressionPage -> IfExpressionRoute
+        TODOPage -> TODORoute
 
 routeToPage : Route -> Page
 routeToPage route =
@@ -28,6 +29,7 @@ routeToPage route =
         ImportsRoute -> ImportsPage
         FuncDeclRoute -> FuncDeclPage
         IfExpressionRoute -> IfExpressionPage
+        TODORoute -> TODOPage
 
 -- Update the model based on the route
 setNewPage : Maybe Route -> Model -> { model: Model, command: Cmd Msg }
@@ -37,6 +39,7 @@ setNewPage maybeRoute model =
             when maybeRoute is
                 Just route -> routeToPage route
                 -- Not a valid URL. Go Home.
+                --- XXX need an error page, really
                 Nothing -> IntroPage
     in
     { model = 

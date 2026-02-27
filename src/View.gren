@@ -15,6 +15,7 @@ import Views.IfExpressionPage
 import Views.IntroPage
 import Views.ImportsPage
 import Views.ModuleLinePage
+import Views.TODOPage
 
 doc_title = "The Design of \"gren format\""
 
@@ -26,6 +27,7 @@ render_page_body model =
         ImportsPage -> Views.ImportsPage.view model
         FuncDeclPage -> Views.FuncDeclPage.view model
         IfExpressionPage -> Views.IfExpressionPage.view model
+        TODOPage -> Views.TODOPage.view model
 
 view : Model -> Document Msg
 view model =

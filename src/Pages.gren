@@ -6,6 +6,7 @@ type Page
     | ImportsPage
     | FuncDeclPage
     | IfExpressionPage
+    | TODOPage
 
 
 -- The order matters; it's how the table-of-contents sidebard
@@ -13,7 +14,7 @@ type Page
 allPages : Array Page
 allPages =
     [ IntroPage, ModuleLinePage, ImportsPage, FuncDeclPage,
-      IfExpressionPage
+      IfExpressionPage, TODOPage
     ]
 
 pageTitle : Page -> String
@@ -24,3 +25,4 @@ pageTitle page =
         ImportsPage -> "Imports"
         FuncDeclPage -> "Function Declarations"
         IfExpressionPage -> "If-Expressions"
+        TODOPage -> "To-Do"

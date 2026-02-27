@@ -1,0 +1,31 @@
+module Views.TODOPage exposing (view)
+
+import Html exposing (Html, h1, h2, div, p, text, pre, a, li, ol)
+import Html.Attributes exposing (href)
+
+import Msg exposing (Msg(..))
+import Model exposing (..)
+
+
+view : Model -> Html Msg
+view model =
+    div [] [
+        h1 [] [ text "To-Do" ],
+
+        p [] [ text """
+These are things that I still need to write about. Suggestions are welcome!
+"""
+        ],
+
+        ol [] [
+            li [] [ text "Let-Statements (let/in, and assignments)" ],
+            li [] [ text "When-Statements" ],
+            li [] [ text "Deferencing Records" ],
+            li [] [ text "Nested Arrays" ],
+            li [] [ text "Html Msg" ],
+            li [] [ text "Pipeline Operators" ],
+            li [] [ text "Single-line Comments" ],
+            li [] [ text "Multi-line Comments" ],
+            li [] [ text "Vertical Spacing" ]
+        ]
+    ]

@@ -15,6 +15,7 @@ type Route
     | ImportsRoute
     | FuncDeclRoute
     | IfExpressionRoute
+    | TODORoute
 
 routePath : Route -> String
 routePath route =
@@ -24,6 +25,7 @@ routePath route =
         ImportsRoute -> "imports"
         FuncDeclRoute -> "functions"
         IfExpressionRoute -> "if-expressions"
+        TODORoute -> "to-do"
 
 mkParser: String -> Route -> Parser (Route -> a) a
 mkParser mountPath route =
@@ -73,6 +75,7 @@ routes mountPath =
         , mkParser mountPath ImportsRoute
         , mkParser mountPath FuncDeclRoute
         , mkParser mountPath IfExpressionRoute
+        , mkParser mountPath TODORoute
         ]
 
 -- Converts URLs to routes
