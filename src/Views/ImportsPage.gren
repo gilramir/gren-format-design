@@ -19,7 +19,7 @@ view model =
 
         p [] [
             text """
-"import" statements are very similar to "module" statemnts.
+"import" statements are very similar to "module" statements.
 However, when the program has many "import" statements in sequence,
 there is an opportunity to align the "exposing" part in a column.
 """
