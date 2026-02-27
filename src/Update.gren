@@ -16,7 +16,7 @@ pageToRoute page =
         ModuleLinePage -> ModuleLineRoute
         ImportsPage -> ImportsRoute
         FuncDeclPage -> FuncDeclRoute
-        IfStatementPage -> IfStatementRoute
+        IfExpressionPage -> IfExpressionRoute
 
 update : Msg -> Model -> { model: Model, command: Cmd Msg}
 update msg model =

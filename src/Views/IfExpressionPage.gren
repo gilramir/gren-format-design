@@ -1,4 +1,4 @@
-module Views.IfStatementPage exposing (view)
+module Views.IfExpressionPage exposing (view)
 
 import Html exposing (Html, h1, h2, div, p, text, pre)
 
@@ -14,11 +14,11 @@ import PrettyConfig exposing (..)
 view : Model -> Html Msg
 view model =
     div [] [
-        h1 [] [ text "If Statements" ],
+        h1 [] [ text "If-Expressions" ],
 
         p [] [
             text """
-If statements have a predicate, a true body, and a false body.
+If-expressions have a predicate, a true body, and a false body.
 """
         ],
 
@@ -110,7 +110,7 @@ section_ml_aligned model =
         div [] [
             p [] [
                 text """
-There is possibly another style for long if statements. It would still
+There is possibly another style for long if-expressions. It would still
 be multiline, but the "then" is on a differnet line from the "if".
 The "if", "then", and "else" are on separate lines, aligned at the same
 column. If their bodies are multi-line, the lines after their first line

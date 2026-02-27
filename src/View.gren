@@ -11,7 +11,7 @@ import Model exposing (..)
 import Msg exposing (Msg(..))
 import Pages exposing (Page(..), allPages, pageTitle)
 import Views.FuncDeclPage
-import Views.IfStatementPage
+import Views.IfExpressionPage
 import Views.IntroPage
 import Views.ImportsPage
 import Views.ModuleLinePage
@@ -25,7 +25,7 @@ render_page_body model =
         ModuleLinePage -> Views.ModuleLinePage.view model
         ImportsPage -> Views.ImportsPage.view model
         FuncDeclPage -> Views.FuncDeclPage.view model
-        IfStatementPage -> Views.IfStatementPage.view model
+        IfExpressionPage -> Views.IfExpressionPage.view model
 
 view : Model -> Document Msg
 view model =
