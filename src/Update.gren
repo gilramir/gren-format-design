@@ -1,13 +1,15 @@
-module Update exposing (update)
+module Update exposing (update, setNewPage)
 
 import Browser exposing (UrlRequest)
+import Browser.Dom exposing (setViewportOf)
 import Browser.Navigation as Navigation
 import Url exposing (Url)
+import Task
 
 import Model exposing (..)
 import Msg exposing (Msg(..))
 import Pages exposing (Page(..))
-import Routes exposing (Route(..), routeToUrl, setNewPage)
+import Routes exposing (Route(..), routeToUrl)
 
 pageToRoute : Page -> Route
 pageToRoute page =
@@ -17,6 +19,33 @@ pageToRoute page =
         ImportsPage -> ImportsRoute
         FuncDeclPage -> FuncDeclRoute
         IfExpressionPage -> IfExpressionRoute
+
+routeToPage : Route -> Page
+routeToPage route =
+    when route is
+        HomeRoute -> IntroPage
+        ModuleLineRoute -> ModuleLinePage
+        ImportsRoute -> ImportsPage
+        FuncDeclRoute -> FuncDeclPage
+        IfExpressionRoute -> IfExpressionPage
+
+-- Update the model based on the route
+setNewPage : Maybe Route -> Model -> { model: Model, command: Cmd Msg }
+setNewPage maybeRoute model =
+    let
+        nextPage = 
+            when maybeRoute is
+                Just route -> routeToPage route
+                -- Not a valid URL. Go Home.
+                Nothing -> IntroPage
+    in
+    { model = 
+        { model
+            | page = nextPage
+        }
+    -- Scroll up
+    , command = Task.attempt (\_ -> NoOp) (Browser.Dom.setViewportOf "page-content" 0 0)
+    }
 
 update : Msg -> Model -> { model: Model, command: Cmd Msg}
 update msg model =
@@ -41,6 +70,11 @@ update msg model =
                 maybeNewRoute = Routes.match model.flags.mountPoint newUrl
             in
                 setNewPage maybeNewRoute model
+
+        NoOp ->
+            { model = model
+            , command = Cmd.none
+            }
 
         ClickedTocEntry page ->
             { model =

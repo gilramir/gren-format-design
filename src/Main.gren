@@ -7,7 +7,7 @@ import Url exposing (Url)
 import Flags exposing (Flags)
 import Model exposing (Model, initialModel)
 import Msg exposing (Msg(..))
-import Routes exposing (setNewPage)
+import Routes
 import Update
 import View
 
@@ -17,7 +17,7 @@ init flags url navigationKey =
     let
         model = initialModel navigationKey flags
     in
-        setNewPage (Routes.match flags.mountPoint url) model
+        Update.setNewPage (Routes.match flags.mountPoint url) model
 
 subscriptions:  Model -> Sub Msg
 subscriptions model =

@@ -1,4 +1,4 @@
-module Routes exposing (Route(..), match, routeToUrl, setNewPage)
+module Routes exposing (Route(..), match, routeToUrl)
 
 import Html
 import Html.Attributes
@@ -24,32 +24,6 @@ routePath route =
         ImportsRoute -> "imports"
         FuncDeclRoute -> "functions"
         IfExpressionRoute -> "if-expressions"
-
-routePage : Route -> Page
-routePage route =
-    when route is
-        HomeRoute -> IntroPage
-        ModuleLineRoute -> ModuleLinePage
-        ImportsRoute -> ImportsPage
-        FuncDeclRoute -> FuncDeclPage
-        IfExpressionRoute -> IfExpressionPage
-
--- Update the model based on the route
-setNewPage : Maybe Route -> Model -> { model: Model, command: Cmd Msg }
-setNewPage maybeRoute model =
-    let
-        nextPage = 
-            when maybeRoute is
-                Just route -> routePage route
-                -- Not a valid URL. Go Home.
-                Nothing -> IntroPage
-    in
-    { model = 
-        { model
-            | page = nextPage
-        }
-    , command = Cmd.none
-    }
 
 mkParser: String -> Route -> Parser (Route -> a) a
 mkParser mountPath route =

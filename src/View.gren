@@ -81,7 +81,8 @@ render_toc_entries model =
 
 render_page_view : Model -> Html Msg
 render_page_view model =
-    nav [ class "main-content" ] [
+    -- The scrolling is on "page-content"
+    nav [ class "main-content", id "page-content" ] [
         article [ id "content-area" ] [
             render_page_body model
         ]

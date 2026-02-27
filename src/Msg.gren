@@ -9,3 +9,5 @@ type Msg
     = VisitUrl UrlRequest
     | UrlChanged Url
     | ClickedTocEntry Page
+    -- To use with Task and Browser.Dom.setViewportOf
+    | NoOp
