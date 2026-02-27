@@ -1,9 +1,7 @@
 module Views.IntroPage exposing (view)
 
 import Html exposing (Html, h1, h2, div, p, text, pre, a)
-import Html.Attributes exposing (class, href)
-import Html.Events exposing (onClick)
-import String
+import Html.Attributes exposing (href)
 
 import PrettyExpressive as P
 import PrettyExpressive.Debug exposing (debugShowDoc)
@@ -11,7 +9,7 @@ import PrettyExpressive.Debug exposing (debugShowDoc)
 import CodeView
 import Msg exposing (Msg(..))
 import Model exposing (..)
-import PrettyConfig exposing (cf80, guidelines)
+import PrettyConfig exposing (..)
 
 viewItems : P.Doc cost
 viewItems = 
@@ -78,7 +76,7 @@ Printer. For example, this rendering:
 """
        ],
 
-        CodeView.view rendered guidelines "viewItems from https://gren-lang.org",
+        CodeView.view rendered guidelines80 "viewItems from https://gren-lang.org",
 
         p [] [ text """
 Is directly produced from intermediate format:

@@ -5,10 +5,10 @@ import Html exposing (Html, h1, h2, div, p, text, pre)
 import PrettyExpressive as P
 
 import CodeView
-import DocConstructors exposing (listOnePerLine, parenList, flowList)
+import DocConstructors exposing (..)
 import Msg exposing (Msg(..))
 import Model exposing (Model)
-import PrettyConfig exposing (cf60, cf80, guidelines, guidelines60)
+import PrettyConfig exposing (..)
 
 view : Model -> Html Msg
 view model =
@@ -59,7 +59,7 @@ Let's look at a module that exposes many symbols. The format that is generally
 used is to show one symbol per line, with one indentation.
 """
             ],
-            CodeView.view rendered guidelines "One Exposed Symbol Per Line"
+            CodeView.view rendered guidelines80 "One Exposed Symbol Per Line"
         ]
 
 
@@ -109,7 +109,7 @@ At 80-columns, it renders as:
 """
             ],
 
-            CodeView.view rendered80 guidelines "All on the same line",
+            CodeView.view rendered80 guidelines80 "All on the same line",
 
             p [] [
                 text """
@@ -163,6 +163,6 @@ instead of having one symbol per line.
 """
             ],
 
-            CodeView.view rendered80 guidelines "Flowing across multiple lines"
+            CodeView.view rendered80 guidelines80 "Flowing across multiple lines"
         ]
 

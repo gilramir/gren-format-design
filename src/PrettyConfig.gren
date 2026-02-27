@@ -10,8 +10,11 @@ cf60 : P.CostFactory P.DefaultCostTuple
 cf60 =
     P.defaultCostFactory { pageWidth = 60, computationWidth = Nothing }
 
-guidelines : Array Int
-guidelines = [10, 20, 30, 40, 50, 60, 70, 80]
+guidelines80 : Array Int
+guidelines80 = [10, 20, 30, 40, 50, 60, 70, 80]
 
 guidelines60 : Array Int
 guidelines60 = [10, 20, 30, 40, 50, 60]
+
+guidelines100 : Array Int
+guidelines100 = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100]

@@ -8,7 +8,7 @@ import CodeView
 import DocConstructors exposing (..)
 import Msg exposing (Msg(..))
 import Model exposing (Model)
-import PrettyConfig exposing (cf60, cf80, guidelines, guidelines60)
+import PrettyConfig exposing (..)
 
 
 view : Model -> Html Msg
@@ -63,7 +63,7 @@ This is a function declaration that easily fits on two lines,
 with the types on one line, and the variables on the next.
 """
             ],
-            CodeView.view rendered1 guidelines "Function declaration",
+            CodeView.view rendered1 guidelines80 "Function declaration",
 
             p [] [
                 text """
@@ -71,7 +71,7 @@ When the type types have very long names, the first line extends well past the
 80-column limit.
 """
             ],
-            CodeView.view rendered2 guidelines "Function declaration, extending beyond the limit"
+            CodeView.view rendered2 guidelines100 "Function declaration, extending beyond the limit"
 
         ]
 
@@ -97,7 +97,7 @@ Another way to show those overflows is to go to subsequent lines, where
 the overflow flows across the line.
 """
             ],
-            CodeView.view rendered guidelines "Function declaration, multi-line, flowing"
+            CodeView.view rendered guidelines80 "Function declaration, multi-line, flowing"
 
         ]
 
@@ -121,7 +121,7 @@ Or, the types can be printed on per line if they overflow, but, not the
 variable names.
 """
             ],
-            CodeView.view rendered guidelines "Function declaration, types can be on individual lines"
+            CodeView.view rendered guidelines80 "Function declaration, types can be on individual lines"
 
         ]
 
@@ -145,6 +145,6 @@ section_multiLine_onePer_tv model =
 Or, the types and variables can be printed on per line if they overflow.
 """
             ],
-            CodeView.view rendered guidelines "Function declaration, types and variables can be on individual lines"
+            CodeView.view rendered guidelines80 "Function declaration, types and variables can be on individual lines"
 
         ]

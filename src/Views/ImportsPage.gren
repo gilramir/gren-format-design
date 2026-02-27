@@ -6,10 +6,10 @@ import PrettyExpressive as P
 import PrettyExpressive.Debug exposing (debugShowDoc)
 
 import CodeView
-import DocConstructors exposing (listOnePerLine, parenList, flowList)
+import DocConstructors exposing (..)
 import Msg exposing (Msg(..))
 import Model exposing (Model)
-import PrettyConfig exposing (cf60, cf80, guidelines, guidelines60)
+import PrettyConfig exposing (..)
 
 
 view : Model -> Html Msg
@@ -80,7 +80,7 @@ The second and thirs lines have short lists,
 and the last one has a long list that can't fit on a single line.
 """
             ],
-            CodeView.view rendered guidelines "Import statement block, not aligned, one-per-lien"
+            CodeView.view rendered guidelines80 "Import statement block, not aligned, one-per-lien"
 
         ]
 
@@ -126,7 +126,7 @@ Here is the same block, but allowing symbols after the first line to flow
 across the line.
 """
             ],
-            CodeView.view rendered guidelines "Import statement block, not aligned, flowing across"
+            CodeView.view rendered guidelines80 "Import statement block, not aligned, flowing across"
 
         ]
 
@@ -163,6 +163,6 @@ so the pretty-printer can choose the correct column for "exposing" by itself.
 """
 
             ],
-            CodeView.view rendered guidelines "Import statement block, aligned, flowing across"
+            CodeView.view rendered guidelines80 "Import statement block, aligned, flowing across"
 
         ]
