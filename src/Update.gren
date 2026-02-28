@@ -20,6 +20,7 @@ pageToRoute page =
         FuncDeclPage -> FuncDeclRoute
         IfExpressionPage -> IfExpressionRoute
         TODOPage -> TODORoute
+        ArraysPage -> ArraysRoute
         -- We don't really have or want a route for this
         NoSuchPage -> HomeRoute
 
@@ -32,6 +33,7 @@ routeToPage route =
         FuncDeclRoute -> FuncDeclPage
         IfExpressionRoute -> IfExpressionPage
         TODORoute -> TODOPage
+        ArraysRoute -> ArraysPage
 
 -- Update the model based on the route
 setNewPage : Maybe Route -> Model -> { model: Model, command: Cmd Msg }

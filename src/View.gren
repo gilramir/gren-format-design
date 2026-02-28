@@ -10,6 +10,7 @@ import BuildId
 import Model exposing (..)
 import Msg exposing (Msg(..))
 import Pages exposing (Page(..))
+import Views.ArraysPage
 import Views.FuncDeclPage
 import Views.IfExpressionPage
 import Views.IntroPage
@@ -25,7 +26,8 @@ doc_title = "The Design of \"gren format\""
 allPages : Array Page
 allPages =
     [ IntroPage, ModuleLinePage, ImportsPage, FuncDeclPage,
-      IfExpressionPage, TODOPage
+      IfExpressionPage, ArraysPage,
+      TODOPage
     ]
 
 pageTitle : Page -> String
@@ -37,6 +39,7 @@ pageTitle page =
         FuncDeclPage -> "Function Declarations"
         IfExpressionPage -> "If-Expressions"
         TODOPage -> "To-Do"
+        ArraysPage -> "Arrays"
         -- We don't show this in the table of contents
         NoSuchPage -> ""
 
@@ -49,6 +52,7 @@ render_page_body model =
         FuncDeclPage -> Views.FuncDeclPage.view model
         IfExpressionPage -> Views.IfExpressionPage.view model
         TODOPage -> Views.TODOPage.view model
+        ArraysPage -> Views.ArraysPage.view model
         NoSuchPage -> Views.NoSuchPage.view model
 
 

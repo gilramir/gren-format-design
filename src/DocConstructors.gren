@@ -87,6 +87,39 @@ parenList items =
                 -- When broken: nl gives a real newline, putting ")" on its own line
                 P.concat itemsJoined (P.concat P.nl P.rparen)
 
+{- single item on one line; multiple items each on one line
+-}
+bracketArray : Array String -> P.Doc cost
+bracketArray items =
+    when Array.popFirst items is
+        Nothing ->
+            -- Empty list: "()"
+            P.concat P.lbrack P.rbrack
+
+        Just { first, rest } ->
+            if Array.isEmpty rest then
+                -- Single element: "(foo)" — no separators, no newlines
+                P.concat P.lbrack (P.concat (P.text first) P.rbrack)
+
+            else
+                -- Multiple elements.
+                -- Build doc nodes: "( item1", ", item2", ..., ", itemN"
+                let
+                    firstDoc = P.text ("[ " ++ first)
+                    restDocs = Array.map (\s -> P.text (", " ++ s)) rest
+                    allItemDocs = [ firstDoc ] ++ restDocs
+
+                    -- All items joined with breakDoc (collapses to nothing when flat)
+                    itemsJoined =
+                        P.foldDoc
+                            (\a b -> P.concat a (P.concat P.breakDoc b))
+                            allItemDocs
+                in
+                -- The closing ")" is always joined with nl, not breakDoc.
+                -- When flat: nl collapses to a space, giving "( a, b, c )"
+                -- When broken: nl gives a real newline, putting ")" on its own line
+                P.concat itemsJoined (P.concat P.nl P.rbrack)
+
 
 
 {-| Like `parenList`, but items flow across lines rather than being either
@@ -568,3 +601,41 @@ We join with nl, but in flattened form, that's a space.
 joinWhitespace : Array (P.Doc cost) -> P.Doc cost
 joinWhitespace docs =
     P.group <| P.vcat docs
+
+
+{- the array either fits completely cross, or its rendered vertically
+
+Tracing the two forms that `group` chooses between:
+
+**Flat** — `flatten` collapses `breakDoc` to `""` and `nl` to `" "`:
+```
+[ 1, 2, 3 ]
+```
+
+**Broken** — `breakDoc` and `nl` both emit a real newline at indent 0:
+```
+[ 1
+, 2
+, 3
+]
+-}
+arrayDoc : Array (P.Doc cost) -> P.Doc cost
+arrayDoc items =
+    when Array.popFirst items is
+        Nothing ->
+            P.text "[]"
+
+        Just { first, rest } ->
+            let
+                firstDoc = P.concat (P.text "[ ") first
+                restDocs = Array.map (\d -> P.concat (P.text ", ") d) rest
+                allDocs  = [ firstDoc ] ++ restDocs
+
+                joined =
+                    P.foldDoc
+                        (\a b -> P.concat a (P.concat P.breakDoc b))
+                        allDocs
+            in
+            P.group
+                (P.concat joined (P.concat P.nl (P.text "]")))
+

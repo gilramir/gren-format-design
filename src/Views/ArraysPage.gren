@@ -1,0 +1,74 @@
+module Views.ArraysPage exposing (view)
+
+import Html exposing (Html, h1, h2, div, p, text, pre)
+
+import PrettyExpressive as P
+
+import CodeView
+import DocConstructors exposing (..)
+import Msg exposing (Msg(..))
+import Model exposing (Model)
+import PrettyConfig exposing (..)
+
+
+view : Model -> Html Msg
+view model =
+    div [] [
+        h1 [] [ text "Arrays" ],
+
+        p [] [
+            text """
+Arrays are an interesting case of trying to optimize beauty
+as well as meaning.
+"""
+        ],
+
+        h2 [] [ text "Short Arrays" ],
+        section_short model
+
+    ]
+
+function : String -> P.Doc cost -> P.Doc cost
+function name body =
+    functionDecl name [ "Array String" ]
+            [ ] body
+
+q: Array String -> Array (P.Doc cost)
+q input = 
+    Array.map (\s -> P.text <| "\"" ++ s ++ "\"") input
+
+section_short : Model -> Html Msg
+section_short model =
+    let
+        doc0 = function "emptyArray" <| arrayDoc []
+
+        doc1 = function "array1" <| arrayDoc <| q ["oneString"]
+
+        doc3 = function "array3" <| arrayDoc <| q ["apple", "boy", "car"]
+
+        rendered0 = when P.prettyFormat cf80 doc0 is
+            Nothing -> "Failed to render"
+            Just prettyPrinted -> prettyPrinted
+
+        rendered1 = when P.prettyFormat cf80 doc1 is
+            Nothing -> "Failed to render"
+            Just prettyPrinted -> prettyPrinted
+
+        rendered3 = when P.prettyFormat cf80 doc3 is
+            Nothing -> "Failed to render"
+            Just prettyPrinted -> prettyPrinted
+
+    in
+        div [] [
+            p [] [
+                text """
+Short lists can be rendered on a single line.
+"""
+            ],
+            CodeView.view rendered0 guidelines80 "An array of 0 items.",
+
+            CodeView.view rendered1 guidelines80 "An array of 1 item.",
+
+            CodeView.view rendered3 guidelines80 "An array of 3 items."
+        ]
+

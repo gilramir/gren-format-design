@@ -16,6 +16,7 @@ type Route
     | FuncDeclRoute
     | IfExpressionRoute
     | TODORoute
+    | ArraysRoute
 
 routePath : Route -> String
 routePath route =
@@ -26,6 +27,21 @@ routePath route =
         FuncDeclRoute -> "functions"
         IfExpressionRoute -> "if-expressions"
         TODORoute -> "to-do"
+        ArraysRoute -> "arrays"
+
+-- Parser for routes
+routes: String -> Parser (Route -> a) a
+routes mountPath =
+    Parser.oneOf
+        [ mkParser mountPath HomeRoute
+        , mkParser mountPath ModuleLineRoute
+        , mkParser mountPath ImportsRoute
+        , mkParser mountPath FuncDeclRoute
+        , mkParser mountPath IfExpressionRoute
+        , mkParser mountPath TODORoute
+        , mkParser mountPath ArraysRoute
+        ]
+
 
 mkParser: String -> Route -> Parser (Route -> a) a
 mkParser mountPath route =
@@ -66,18 +82,6 @@ runParsers parsers =
                         Just _ ->
                             Parser.s first </> runParsers afterFirst
                             
--- Parser for routes
-routes: String -> Parser (Route -> a) a
-routes mountPath =
-    Parser.oneOf
-        [ mkParser mountPath HomeRoute
-        , mkParser mountPath ModuleLineRoute
-        , mkParser mountPath ImportsRoute
-        , mkParser mountPath FuncDeclRoute
-        , mkParser mountPath IfExpressionRoute
-        , mkParser mountPath TODORoute
-        ]
-
 -- Converts URLs to routes
 match: String -> Url -> Maybe Route
 match basePath url =
