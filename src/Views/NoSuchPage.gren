@@ -1,0 +1,15 @@
+module Views.NoSuchPage exposing (view)
+
+import Html exposing (Html, h1, img, div, p, text, pre)
+import Html.Attributes exposing (src, alt, class)
+
+import Msg exposing (Msg(..))
+import Model exposing (Model)
+
+
+view : Model -> Html Msg
+view model =
+    div [] [
+        h1 [] [ text "Oops! There's no such page. Choose another page." ],
+        img [src "static/images/gren-404.png", alt "404", class "big-graphic"] []
+    ]

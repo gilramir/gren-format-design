@@ -558,3 +558,13 @@ ifThenElseKeywordsOnNewLines indent predicate ifTrue ifFalse =
         , P.text "else "
         , P.nest indent ifFalse
         ]
+
+
+{-
+Join an Array of docs with whitepsace. On a line it will be a space, but if the
+line overflows, the space can be a newline.
+We join with nl, but in flattened form, that's a space.
+-}
+joinWhitespace : Array (P.Doc cost) -> P.Doc cost
+joinWhitespace docs =
+    P.group <| P.vcat docs

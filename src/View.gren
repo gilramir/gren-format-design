@@ -9,15 +9,36 @@ import String
 import BuildId
 import Model exposing (..)
 import Msg exposing (Msg(..))
-import Pages exposing (Page(..), allPages, pageTitle)
+import Pages exposing (Page(..))
 import Views.FuncDeclPage
 import Views.IfExpressionPage
 import Views.IntroPage
 import Views.ImportsPage
 import Views.ModuleLinePage
+import Views.NoSuchPage
 import Views.TODOPage
 
 doc_title = "The Design of \"gren format\""
+
+-- The order matters; it's how the table-of-contents sidebard
+-- is rendered
+allPages : Array Page
+allPages =
+    [ IntroPage, ModuleLinePage, ImportsPage, FuncDeclPage,
+      IfExpressionPage, TODOPage
+    ]
+
+pageTitle : Page -> String
+pageTitle page =
+    when page is
+        IntroPage -> "Introduction"
+        ModuleLinePage -> "The Module Line"
+        ImportsPage -> "Imports"
+        FuncDeclPage -> "Function Declarations"
+        IfExpressionPage -> "If-Expressions"
+        TODOPage -> "To-Do"
+        -- We don't show this in the table of contents
+        NoSuchPage -> ""
 
 render_page_body : Model -> Html Msg
 render_page_body model =
@@ -28,6 +49,8 @@ render_page_body model =
         FuncDeclPage -> Views.FuncDeclPage.view model
         IfExpressionPage -> Views.IfExpressionPage.view model
         TODOPage -> Views.TODOPage.view model
+        NoSuchPage -> Views.NoSuchPage.view model
+
 
 view : Model -> Document Msg
 view model =

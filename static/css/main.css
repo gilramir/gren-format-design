@@ -197,3 +197,9 @@ svg text {
   font-family: 'Courier New', Courier, monospace;
   white-space: pre;
 }
+
+/* for the 404 page */
+.big-graphic {
+    width: 30vw;
+    height: auto;
+}

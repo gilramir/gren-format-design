@@ -20,6 +20,8 @@ pageToRoute page =
         FuncDeclPage -> FuncDeclRoute
         IfExpressionPage -> IfExpressionRoute
         TODOPage -> TODORoute
+        -- We don't really have or want a route for this
+        NoSuchPage -> HomeRoute
 
 routeToPage : Route -> Page
 routeToPage route =
@@ -38,9 +40,8 @@ setNewPage maybeRoute model =
         nextPage = 
             when maybeRoute is
                 Just route -> routeToPage route
-                -- Not a valid URL. Go Home.
-                --- XXX need an error page, really
-                Nothing -> IntroPage
+                -- Not a valid URL. 404
+                Nothing -> NoSuchPage
     in
     { model = 
         { model

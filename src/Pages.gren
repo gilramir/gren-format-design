@@ -1,4 +1,4 @@
-module Pages exposing (Page(..), allPages, pageTitle)
+module Pages exposing (Page(..))
 
 type Page
     = IntroPage
@@ -7,22 +7,5 @@ type Page
     | FuncDeclPage
     | IfExpressionPage
     | TODOPage
+    | NoSuchPage
 
-
--- The order matters; it's how the table-of-contents sidebard
--- is rendered
-allPages : Array Page
-allPages =
-    [ IntroPage, ModuleLinePage, ImportsPage, FuncDeclPage,
-      IfExpressionPage, TODOPage
-    ]
-
-pageTitle : Page -> String
-pageTitle page =
-    when page is
-        IntroPage -> "Introduction"
-        ModuleLinePage -> "The Module Line"
-        ImportsPage -> "Imports"
-        FuncDeclPage -> "Function Declarations"
-        IfExpressionPage -> "If-Expressions"
-        TODOPage -> "To-Do"
