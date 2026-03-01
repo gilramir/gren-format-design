@@ -138,8 +138,9 @@ section_html model =
                 text "There is an ",
                 a [href "https://discourse.elm-lang.org/t/hi-elmers-lets-talk-about-elms-code-formatting/2012/8"]
                 [ text "interesting complaint about elm-format" ],
+                text " ",
                 text """
- which says that the standard list-formatting logic in elm-format isn't ideal
+which says that the standard list-formatting logic in elm-format isn't ideal
 for the Html Msg construction in view functions, because the Html entties, with
 their Attribute lists and bodies have a meaning which becomes hard to see with
 the elm-format formatting.
