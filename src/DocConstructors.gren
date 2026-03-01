@@ -639,3 +639,88 @@ arrayDoc items =
             P.group
                 (P.concat joined (P.concat P.nl (P.text "]")))
 
+textDocs : Array String -> Array (P.Doc cost)
+textDocs strings =
+    Array.map P.text strings
+
+flowIndentable : Int -> Array (P.Doc cost) -> P.Doc cost
+flowIndentable indent docs =
+    P.nest 4
+        (P.foldDoc
+            (\a b -> P.concat a (P.group (P.concat P.nl b)))
+            docs
+        )
+
+{-
+call as:
+
+htmlTree 4
+    "div"
+    [ P.text "class \"container\"", P.text "id \"main\"" ]
+    [ P.text "h1 [] [ text \"Title\" ]"
+    , P.text "p [] [ text \"Body\" ]"
+    ]
+-}
+htmlTree : Int -> String -> Array (P.Doc cost) -> Array (P.Doc cost) -> P.Doc cost
+htmlTree indent name attributes children =
+    let
+        attrsDoc =
+            when Array.popFirst attributes is
+                Nothing ->
+                    P.text "[]"
+
+                Just { first, rest } ->
+                    let
+                        firstDoc = P.concat (P.text "[ ") first
+                        allDocs  = [ firstDoc ] ++ rest
+
+                        allDocsWithClose =
+                            when Array.popLast allDocs is
+                                Nothing ->
+                                    allDocs
+                                Just { initial, last } ->
+                                    -- Comma before the separator; flat=" ", broken=newline
+                                    Array.map (\d -> P.concat d (P.text ",")) initial
+                                    ++ [ P.concat last (P.text " ]") ]
+                    in
+                    P.nest indent
+                        (P.foldDoc
+                            (\a b -> P.concat a (P.group (P.concat (P.newline (Just " ")) b)))
+                            allDocsWithClose
+                        )
+
+        childrenDoc =
+            when Array.popFirst children is
+                Nothing ->
+                    P.text " []"
+
+                Just _ ->
+                    let
+                        -- Each child is grouped (tries to be single-line).
+                        -- Comma + newline(Just " ") is the separator:
+                        --   flat:   ", "
+                        --   broken: ",\n"
+                        childLines =
+                            Array.map
+                                (\c -> P.concat (P.group c) (P.text ","))
+                                children
+                    in
+                    P.concat_array
+                        [ P.text " ["
+                        , P.nest indent
+                            (P.concat P.hardNl
+                                (P.foldDoc
+                                    (\a b -> P.concat a (P.group (P.concat (P.newline (Just " ")) b)))
+                                    childLines
+                                )
+                            )
+                        , P.hardNl
+                        , P.text "]"
+                        ]
+    in
+    P.concat_array
+        [ P.text name
+        , P.text " "
+        , attrsDoc
+        , childrenDoc
+        ]

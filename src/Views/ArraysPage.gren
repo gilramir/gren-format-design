@@ -1,6 +1,7 @@
 module Views.ArraysPage exposing (view)
 
-import Html exposing (Html, h1, h2, div, p, text, pre)
+import Html exposing (Html, h1, h2, div, p, text, pre, a)
+import Html.Attributes exposing (href)
 
 import PrettyExpressive as P
 
@@ -24,7 +25,13 @@ as well as meaning.
         ],
 
         h2 [] [ text "Short Arrays" ],
-        section_short model
+        section_short model,
+
+        h2 [] [ text "Long Arrays" ],
+        section_long model,
+
+        h2 [] [ text "HTML Functions and Array Arguments" ],
+        section_html model
 
     ]
 
@@ -66,9 +73,115 @@ Short lists can be rendered on a single line.
 """
             ],
             CodeView.view rendered0 guidelines80 "An array of 0 items.",
-
             CodeView.view rendered1 guidelines80 "An array of 1 item.",
-
             CodeView.view rendered3 guidelines80 "An array of 3 items."
         ]
+
+section_long : Model -> Html Msg
+section_long model =
+    let
+        doc = function "longArray" <| arrayDoc <| q [
+                "bulldog", "dog", "dogcatcher", "dogfight", "dogfish",
+                "dogfishes", "dogged", "doggedly", "doggedness", "doggie" ]
+
+        rendered = when P.prettyFormat cf80 doc is
+            Nothing -> "Failed to render"
+            Just prettyPrinted -> prettyPrinted
+
+
+    in
+        div [] [
+            p [] [
+                text """
+Long arrays that cannot it on a single line can be on multiple lines, one per line.
+"""
+            ],
+            CodeView.view rendered guidelines80 "A long array"
+        ]
+
+
+
+
+section_html : Model -> Html Msg
+section_html model =
+    let
+        doc = htmlTree 4
+            "div" [ P.text "some-ui-class"]
+                [ htmlTree 4
+                    "h3" [] [
+                        flowIndentable 4 <|
+                            textDocs
+                                [ "text"
+                                , "(\"Total Calories: \""
+                                , "++"
+                                , "toString model)"
+                                ]
+                        ]
+                , htmlTree 4
+                    "button" [ P.text "type_ \"button\"",
+                        P.text "onClick AddCalorie" ]
+                        [ P.text "text \"Add\"" ]
+                , htmlTree 4
+                    "button" [ P.text "type_ \"button\"",
+                        P.text "onClick Clear" ]
+                        [ P.text "text \"Clear\"" ]
+                ]
+
+        rendered = when P.prettyFormat cf80 doc is
+            Nothing -> "Failed to render"
+            Just prettyPrinted -> prettyPrinted
+
+
+    in
+        div [] [
+            p [] [
+                text "There is an ",
+                a [href "https://discourse.elm-lang.org/t/hi-elmers-lets-talk-about-elms-code-formatting/2012/8"]
+                [ text "interesting complaint about elm-format" ],
+                text """
+ which says that the standard list-formatting logic in elm-format isn't ideal
+for the Html Msg construction in view functions, because the Html entties, with
+their Attribute lists and bodies have a meaning which becomes hard to see with
+the elm-format formatting.
+"""
+            ],
+            p [] [
+                text """
+The argument is that since HTML is tree structure, the following rendering that
+elm-format currently produces is not ideal:
+"""
+            ],
+            pre [] [
+                text """
+view : Model -> Html Msg
+view model =
+    div [ "some-ui-class" ]
+        [ h3 [] [ text ("Total Calories: " ++ toString model) ]
+        , button [ type_ "button", onClick AddCalorie ] [ text "Add" ]
+        , button [ type_ "button", onClick Clear ] [ text "Clear" ]
+        ]
+"""
+            ],
+
+            p [] [
+                text """
+We could use a heuristic to decide to render some arrays differently.
+For example, if the function returns an `Html msg` (or Array of them, or a
+record with one), and a function that is one of the Html entities is called,
+and it has two arguments, then if those arguments are arrays, they could
+be rendered differently.
+"""
+            ],
+
+            p [] [
+                text """
+This example rendering makes it look more like an HTML tree. The brackets are placed
+different, as well as the commas.
+"""
+            ],
+                
+            CodeView.view rendered guidelines80 "An HTML tree"
+        ]
+
+
 
